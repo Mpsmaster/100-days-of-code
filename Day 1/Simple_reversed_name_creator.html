@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reverse Name Creator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        input, button {
+            margin: 10px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Reverse Name Creator</h2>
+    <div>
+        <label>What is your name? </label><br>
+        <input type="text" id="nameInput" placeholder="e.g., John Doe">
+    </div>
+    <button onclick="reverseName()">Reverse Name</button>
+    <p id="original"></p>
+    <p id="reversed"></p>
+
+    <script>
+        function reverseName() {
+            // Get input value
+            let name = document.getElementById("nameInput").value;
+
+            // Display original name
+            document.getElementById("original").textContent = name;
+
+            // Reverse name and capitalize each word
+            let nameReversed = name.split(" ")
+                .map(word => word.split("").reverse().join(""))
+                .join(" ")
+                .toLowerCase()
+                .replace(/\b\w/g, char => char.toUpperCase());
+
+            // Display reversed name
+            document.getElementById("reversed").textContent = nameReversed;
+        }
+    </script>
+</body>
+</html>

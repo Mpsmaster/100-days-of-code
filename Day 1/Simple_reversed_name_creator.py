@@ -1,0 +1,5 @@
+print("Reverse name creator")
+city = (input("What is your name?"))
+print(city)
+city_reversed = " ".join(word[::-1] for word in city.split()).title()
+print(city_reversed)
