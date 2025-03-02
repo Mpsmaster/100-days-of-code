@@ -1,0 +1,8 @@
+print("Reversed name creator")
+city = (input("What is your first name?"))
+print(city)
+city_reversed = " ".join(word[::-1] for word in city.split()).title()
+pet = (input("What is your last name?"))
+pet_reversed = pet[::-1].title()
+print(pet)
+print(city_reversed +" "+ pet_reversed)
