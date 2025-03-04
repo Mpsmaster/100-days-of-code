@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tip Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            text-align: left;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 1.1em;
+            color: #333;
+        }
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tip Calculator</h1>
+        <form id="tipForm" onsubmit="calculateTip(event)">
+            <label for="totalBill">What was the total bill? (R$)</label>
+            <input type="number" id="totalBill" step="0.01" min="0" required>
+            <div id="billError" class="error">Please enter a number greater than 0.</div>
+
+            <label for="tipPercentage">What percentage tip would you like to give?</label>
+            <select id="tipPercentage" required>
+                <option value="10">10%</option>
+                <option value="12">12%</option>
+                <option value="15">15%</option>
+            </select>
+
+            <label for="people">How many people to split the bill?</label>
+            <input type="number" id="people" min="1" step="1" required>
+            <div id="peopleError" class="error">Please enter a number greater than 0.</div>
+
+            <button type="submit">Calculate</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function calculateTip(event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Get input values
+            const totalBill = parseFloat(document.getElementById('totalBill').value);
+            const tipPercentage = parseInt(document.getElementById('tipPercentage').value);
+            const people = parseInt(document.getElementById('people').value);
+
+            // Reset error messages
+            document.getElementById('billError').style.display = 'none';
+            document.getElementById('peopleError').style.display = 'none';
+            document.getElementById('result').innerHTML = '';
+
+            // Validation
+            let isValid = true;
+            if (isNaN(totalBill) || totalBill <= 0) {
+                document.getElementById('billError').style.display = 'block';
+                isValid = false;
+            }
+            if (isNaN(people) || people <= 0) {
+                document.getElementById('peopleError').style.display = 'block';
+                isValid = false;
+            }
+            if (!isValid) return;
+
+            // Calculate
+            const totalPay = totalBill * (tipPercentage / 100) + totalBill;
+            const billPerPerson = totalPay / people;
+
+            // Display result
+            document.getElementById('result').innerHTML = 
+                `Total bill: R$${totalPay.toFixed(2)}. Bill per person: R$${billPerPerson.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>

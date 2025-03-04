@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jornada do Amuleto Místico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        pre {
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre;
+            background-color: #000;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            text-align: left;
+            font-size: 12px;
+            line-height: 1;
+        }
+        #game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input[type="text"] {
+            padding: 8px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <pre id="ascii-art"></pre>
+        <div id="output"></div>
+        <div id="input-area"></div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const inputArea = document.getElementById('input-area');
+        let name = '';
+
+        // ASCII art
+        const asciiArt1 = `*******************************************************                                    
+| |                                    
+| |_ _ __ ___  __ _ ___ _   _ _ __ ___ 
+| __| '__/ _ \/ _\` / __| | | | '__/ _ \\
+| |_| | |  __/ (_| \__ \ |_| | | |  __/
+ \__|_|  \___|\__,_|___/\__,_|_|  \___|
+*******************************************************`;
+        const asciiArt2 = `*******************************************************************************
+          |                   |                  |                     |
+ _________|________________.=""_;=.______________|_____________________|_______
+|                   |  ,-"_,=""     \`"=.|                  |
+|___________________|__"=._o\`"-._        \`"=.______________|___________________
+          |                \`"=._o\`"=._      _\`"=._                     |
+ _________|_____________________:=._o "=._."_.-="\`"=.__________________|_______
+|                   |    __.--" , ; \`"=._o." ,-"""-._ ".   |
+|___________________|_._"  ,. .\` \` \`\` ,  \`"-._"-._   ". '__|___________________
+          |           |o\`"=._\` , "\` \`; .". ,  "-._"-._; ;              |
+ _________|___________| ;\`-.o\`"=._; ." \` '\`."\\\` . "-._ /_______________|_______
+|                   | |o;    \`"-.o\`"=._\`\`  '\` " ,__.--o;   |
+|___________________|_| ;     (#) \`-.o \`"=.\`_.--"_o.-; ;___|___________________
+____/______/______/___|o;._    "      \`".o|o_.--"    ;o;____/______/______/____
+/______/______/______/_"=._o--._        ; | ;        ; ;/______/______/______/_
+____/______/______/______/__"=._o--._   ;o|o;     _._;o;____/______/______/____
+/______/______/______/______/____"=._o._; | ;_.--"o.--"_/______/______/______/_
+____/______/______/______/______/_____"=.o|o_.--""___/______/______/______/____
+/______/______/______/______/______/______/______/______/______/______/_____[TomekK]
+*******************************************************************************`;
+        document.getElementById('ascii-art').textContent = `${asciiArt1}\n${asciiArt2}`;
+
+        // Function to display text
+        function displayText(text) {
+            output.innerHTML += `<p>${text}</p>`;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Function to clear input area
+        function clearInput() {
+            inputArea.innerHTML = '';
+        }
+
+        // Function to create choice buttons
+        function createChoices(options, callback) {
+            clearInput();
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option.text;
+                button.onclick = () => callback(option.value);
+                inputArea.appendChild(button);
+            });
+        }
+
+        // Function to ask for the player's name
+        function askName() {
+            displayText("Bem-vindo à Jornada do Amuleto Místico!");
+            clearInput();
+            const nameInput = document.createElement('input');
+            nameInput.type = 'text';
+            nameInput.placeholder = 'Digite seu nome';
+            const submitButton = document.createElement('button');
+            submitButton.textContent = 'Começar';
+            submitButton.onclick = () => {
+                name = nameInput.value.trim();
+                if (name) {
+                    inicio();
+                } else {
+                    displayText("Por favor, digite um nome válido!");
+                }
+            };
+            inputArea.appendChild(nameInput);
+            inputArea.appendChild(submitButton);
+        }
+
+        // Introduction
+        function inicio() {
+            displayText(`<strong>Introdução</strong><br>Você é ${name}, um jovem curioso que vive em uma pequena vila cercada por uma floresta densa e misteriosa. 
+                Desde criança, você sonha em explorar além dos limites da vila, 
+                mas seus pais e os anciãos sempre alertaram sobre os perigos que espreitam na floresta. 
+                Um dia, enquanto passeava perto da orla da floresta, 
+                você encontra um objeto brilhante parcialmente enterrado no solo. 
+                Ao desenterrá-lo, descobre que é um amuleto antigo com inscrições estranhas e um brilho suave.`);
+            primeira_escolha();
+        }
+
+        // First choice
+        function primeira_escolha() {
+            displayText("<br><strong>O que você faz?</strong>");
+            const options = [
+                { text: "1. Levar o amuleto para casa", value: "1" },
+                { text: "2. Guardar o amuleto em segredo", value: "2" },
+                { text: "3. Deixar o amuleto onde está", value: "3" }
+            ];
+            createChoices(options, (choice) => {
+                if (choice === "1") {
+                    displayText("Você decide levar o amuleto para casa.");
+                    caminho_1();
+                } else if (choice === "2") {
+                    displayText("Você decide guardar o amuleto em segredo.");
+                    caminho_2();
+                } else if (choice === "3") {
+                    displayText("Você decide deixar o amuleto onde está.");
+                    caminho_3();
+                }
+            });
+        }
+
+        // Path 1
+        function caminho_1() {
+            displayText(`${name} leva o amuleto para casa e mostra aos seus pais. Eles ficam pálidos e preocupados. 
+                Seu pai explica que o amuleto é um artefato perigoso, ligado a uma antiga lenda sobre uma força maligna. 
+                Ele insiste que o objeto deve ser destruído. Mas sua curiosidade fala mais alto. 
+                Naquela noite, você foge para a floresta com o amuleto.`);
+            displayText("<br>Na floresta, você chega a uma encruzilhada:");
+            const options = [
+                { text: "a) Seguir o caminho em direção à luz", value: "a" },
+                { text: "b) Explorar o caminho mais escuro", value: "b" }
+            ];
+            createChoices(options, (choice) => {
+                if (choice === "a") {
+                    displayText(`Você chega a uma clareira mágica. Um espírito da floresta aparece e explica que o amuleto é uma relíquia sagrada. 
+                        Após um treinamento árduo, você usa o amuleto para proteger sua vila, tornando-se um herói.`);
+                    endGame();
+                } else if (choice === "b") {
+                    displayText(`Você encontra uma criatura sombria que rouba o amuleto e o trai. 
+                        Derrotado, você volta para casa, mas aprende uma lição valiosa sobre cautela.`);
+                    endGame();
+                }
+            });
+        }
+
+        // Path 2
+        function caminho_2() {
+            displayText(`${name} guarda o amuleto em segredo. Naquela noite, você sonha com uma voz que fala de ruínas antigas. 
+                Ao acordar, você segue para a floresta em busca delas. Lá, encontra uma velha sábia que oferece ajuda.`);
+            displayText("<br>O que você faz?");
+            const options = [
+                { text: "a) Aceitar a ajuda da sábia", value: "a" },
+                { text: "b) Recusar e continuar sozinho", value: "b" }
+            ];
+            createChoices(options, (choice) => {
+                if (choice === "a") {
+                    displayText(`Com a ajuda da sábia, você chega às ruínas e liberta um herói aprisionado. 
+                        Ele agradece e você retorna à vila como salvador.`);
+                    endGame();
+                } else if (choice === "b") {
+                    displayText(`Sozinho, você enfrenta desafios e descobre que o amuleto concede poderes mágicos. 
+                        Com eles, você parte para explorar o mundo.`);
+                    endGame();
+                }
+            });
+        }
+
+        // Path 3
+        function caminho_3() {
+            displayText(`${name} deixa o amuleto, mas no dia seguinte retorna e vê que ele sumiu. Pegadas levam a uma caverna. 
+                Você ouve vozes sobre um 'poder antigo'.`);
+            displayText("<br>O que você faz?");
+            const options = [
+                { text: "a) Entrar na caverna", value: "a" },
+                { text: "b) Voltar e alertar os anciãos", value: "b" }
+            ];
+            createChoices(options, (choice) => {
+                if (choice === "a") {
+                    displayText(`Na caverna, você encontra exploradores que o veem como o 'escolhido'. 
+                        Juntos, descobrem um tesouro que traz prosperidade à vila.`);
+                    endGame();
+                } else if (choice === "b") {
+                    displayText(`Você alerta os anciãos, lidera uma expedição e impede que o amuleto caia em mãos erradas. 
+                        Você é celebrado como um líder sábio.`);
+                    endGame();
+                }
+            });
+        }
+
+        // End of the game
+        function endGame() {
+            displayText("<br><strong>Fim da aventura. Obrigado por jogar!</strong>");
+            clearInput();
+            const restartButton = document.createElement('button');
+            restartButton.textContent = 'Jogar Novamente';
+            restartButton.onclick = () => {
+                output.innerHTML = '';
+                askName();
+            };
+            inputArea.appendChild(restartButton);
+        }
+
+        // Start the game
+        askName();
+    </script>
+</body>
+</html>
