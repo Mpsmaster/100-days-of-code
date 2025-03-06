@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Jogo de Cara ou Coroa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        #play-again {
+            display: none; /* Hidden until needed */
+        }
+    </style>
+</head>
+<body>
+    <h1>Jogo de Cara ou Coroa</h1>
+    <div id="output">Bem-vindo ao jogo de Cara ou Coroa!</div>
+    <div id="choices">
+        <p>Vou jogar a moeda. Escolha:</p>
+        <button onclick="jogar('c')">Cara (c)</button>
+        <button onclick="jogar('r')">Coroa (r)</button>
+    </div>
+    <div id="play-again">
+        <p>Quer jogar novamente?</p>
+        <button onclick="jogarNovamente(true)">Sim (s)</button>
+        <button onclick="jogarNovamente(false)">Não (n)</button>
+    </div>
+
+    <script>
+        let output = document.getElementById('output');
+        let choices = document.getElementById('choices');
+        let playAgain = document.getElementById('play-again');
+
+        function jogar(jogada) {
+            // Generate random number (1-10) like in the Python code
+            let moeda = Math.floor(Math.random() * 10) + 1;
+            output.innerHTML = "A moeda está sendo jogada...";
+
+            // Simulate a slight delay for effect
+            setTimeout(() => {
+                output.innerHTML = `A moeda caiu em: ${moeda}<br>`;
+                if (moeda % 2 === 0) { // Even = Cara
+                    if (jogada === 'c') {
+                        output.innerHTML += "Sim, você ganhou! A moeda caiu em Cara.";
+                    } else {
+                        output.innerHTML += "Desculpe, você perdeu! A moeda caiu em Cara.";
+                    }
+                } else { // Odd = Coroa
+                    if (jogada === 'r') {
+                        output.innerHTML += "Sim, você ganhou! A moeda caiu em Coroa.";
+                    } else {
+                        output.innerHTML += "Desculpe, você perdeu! A moeda caiu em Coroa.";
+                    }
+                }
+                // Hide choices, show play-again options
+                choices.style.display = 'none';
+                playAgain.style.display = 'block';
+            }, 1000); // 1-second delay
+        }
+
+        function jogarNovamente(sim) {
+            if (sim) {
+                // Reset game
+                output.innerHTML = "Bem-vindo ao jogo de Cara ou Coroa!";
+                choices.style.display = 'block';
+                playAgain.style.display = 'none';
+            } else {
+                // End game
+                output.innerHTML = "Obrigado por jogar!<br>Atualize a página para jogar novamente.";
+                playAgain.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

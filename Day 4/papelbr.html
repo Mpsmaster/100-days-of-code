@@ -1,0 +1,242 @@
+        <html>
+<head>
+    <title>Pedra Papel Tesoura - Melhor de Três</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        #title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        #instructions {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        #choices button {
+            margin: 10px;
+            padding: 15px 25px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        #choices button:hover {
+            background-color: #45a049;
+            transform: scale(1.05);
+        }
+        #choices button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #game-area {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .choice-container {
+            margin: 0 25px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .choice-container p {
+            margin: 0 0 10px 0;
+            font-weight: bold;
+            color: #333;
+        }
+        pre {
+            font-size: 12px;
+            line-height: 1;
+            margin: 0;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        #round-result {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        #round-result.win {
+            color: #2ecc71;
+        }
+        #round-result.lose {
+            color: #e74c3c;
+        }
+        #round-result.tie {
+            color: #3498db;
+        }
+        #score {
+            font-size: 18px;
+            color: #333;
+            margin: 15px 0;
+        }
+        #final-result {
+            margin-top: 20px;
+        }
+        #final-message {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        #final-result button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #final-result button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div id="title">Pedra Papel Tesoura - Melhor de Três</div>
+    <div id="instructions">Escolha seu movimento para jogar contra o computador!</div>
+    <div id="choices">
+        <button onclick="playRound(0)">Pedra</button>
+        <button onclick="playRound(1)">Papel</button>
+        <button onclick="playRound(2)">Tesoura</button>
+    </div>
+    <div id="game-area">
+        <div class="choice-container">
+            <p>Sua Escolha:</p>
+            <pre id="user-choice"></pre>
+        </div>
+        <div class="choice-container">
+            <p>Escolha do Computador:</p>
+            <pre id="computer-choice"></pre>
+        </div>
+    </div>
+    <div id="round-result"></div>
+    <div id="score">Jogador: 0  Computador: 0  Rodada: 0/3</div>
+    <div id="final-result" style="display:none;">
+        <p id="final-message"></p>
+        <button onclick="playAgain()">Jogar Novamente</button>
+    </div>
+    <script>
+        const rock = `
+    _______
+---'   ____)
+      (_____)
+      (_____)
+      (____)
+---.__(___)
+`;
+        const paper = `
+    _______
+---'   ____)____
+          ______)
+          _______)
+         _______)
+---.__________)
+`;
+        const scissors = `
+    _______
+---'   ____)____
+          ______)
+       __________)
+      (____)
+---.__(___)
+`;
+        const choicesArt = [rock, paper, scissors];
+        let playerScore = 0;
+        let computerScore = 0;
+        let round = 0;
+        const userChoiceElem = document.getElementById("user-choice");
+        const computerChoiceElem = document.getElementById("computer-choice");
+        const roundResultElem = document.getElementById("round-result");
+
+        function playRound(userChoice) {
+            if (round >= 3) return;
+            round++;
+            
+            const computerChoice = Math.floor(Math.random() * 3);
+            
+            // Reset opacity for animation
+            userChoiceElem.style.opacity = 0;
+            computerChoiceElem.style.opacity = 0;
+            roundResultElem.style.opacity = 0;
+            
+            // Update choices with fade-in effect
+            setTimeout(() => {
+                userChoiceElem.textContent = choicesArt[userChoice];
+                computerChoiceElem.textContent = choicesArt[computerChoice];
+                userChoiceElem.style.opacity = 1;
+                computerChoiceElem.style.opacity = 1;
+                
+                // Determine winner
+                let result;
+                if (userChoice === computerChoice) {
+                    result = "Empate!";
+                    roundResultElem.className = "tie";
+                } else if (
+                    (userChoice === 0 && computerChoice === 2) ||
+                    (userChoice === 1 && computerChoice === 0) ||
+                    (userChoice === 2 && computerChoice === 1)
+                ) {
+                    result = "Você venceu!";
+                    playerScore++;
+                    roundResultElem.className = "win";
+                } else {
+                    result = "Você perdeu!";
+                    computerScore++;
+                    roundResultElem.className = "lose";
+                }
+                
+                // Display result
+                roundResultElem.textContent = result;
+                roundResultElem.style.opacity = 1;
+                
+                // Update score
+                document.getElementById("score").textContent = `Jogador: ${playerScore}  Computador: ${computerScore}  Rodada: ${round}/3`;
+                
+                // Check if game is over
+                if (round === 3) {
+                    let finalMessage;
+                    if (playerScore > computerScore) {
+                        finalMessage = "Você venceu o jogo!";
+                    } else if (playerScore < computerScore) {
+                        finalMessage = "O computador venceu o jogo!";
+                    } else {
+                        finalMessage = "É um empate!";
+                    }
+                    document.getElementById("final-message").textContent = finalMessage;
+                    document.getElementById("final-result").style.display = "block";
+                    document.querySelectorAll("#choices button").forEach(button => button.disabled = true);
+                }
+            }, 10);
+        }
+
+        function playAgain() {
+            playerScore = 0;
+            computerScore = 0;
+            round = 0;
+            userChoiceElem.textContent = "";
+            computerChoiceElem.textContent = "";
+            userChoiceElem.style.opacity = 0;
+            computerChoiceElem.style.opacity = 0;
+            roundResultElem.textContent = "";
+            roundResultElem.style.opacity = 0;
+            document.getElementById("score").textContent = "Jogador: 0  Computador: 0  Rodada: 0/3";
+            document.getElementById("final-result").style.display = "none";
+            document.querySelectorAll("#choices button").forEach(button => button.disabled = false);
+        }
+    </script>
+</body>
+</html>
