@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        .game-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+        }
+        .hangman {
+            font-size: 20px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre;
+        }
+        .word-display {
+            font-size: 36px;
+            margin-bottom: 20px;
+            letter-spacing: 5px;
+        }
+        .word-display span {
+            transition: all 0.3s ease;
+        }
+        .word-display span.reveal {
+            color: #2ecc71;
+            transform: scale(1.2);
+        }
+        .guessed-letters, .lives {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        .input-area {
+            margin: 20px 0;
+        }
+        .input-area input {
+            font-size: 18px;
+            padding: 8px;
+            width: 50px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+        .input-area input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        .input-area button {
+            font-size: 18px;
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .input-area button:hover:not(:disabled) {
+            background-color: #2980b9;
+        }
+        .input-area button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .message {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: opacity 0.5s;
+        }
+        .message.win {
+            color: #2ecc71;
+        }
+        .message.lose {
+            color: #e74c3c;
+        }
+        .play-again {
+            display: none;
+            margin-top: 20px;
+            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #e67e22;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .play-again:hover {
+            background-color: #d35400;
+        }
+        @media (max-width: 400px) {
+            .hangman {
+                font-size: 16px;
+            }
+            .word-display {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <pre id="hangman"></pre>
+        <div class="word-display" id="wordDisplay"></div>
+        <div class="guessed-letters">Guessed letters: <span id="guessedLetters"></span></div>
+        <div class="lives">Lives left: <span id="lives"></span></div>
+        <div class="input-area">
+            <input type="text" maxlength="1" id="guessInput" placeholder="A">
+            <button id="guessButton">Guess</button>
+        </div>
+        <div class="message" id="message"></div>
+        <button class="play-again" id="playAgain">Play Again</button>
+    </div>
+
+    <script>
+        // Hangman stages
+        const stages = [
+            `  +---+
+  |   |
+  O   |
+ /|\\  |
+ / \\  |
+      |
+=========`,
+            `  +---+
+  |   |
+  O   |
+ /|\\  |
+ /    |
+      |
+=========`,
+            `  +---+
+  |   |
+  O   |
+ /|\\  |
+      |
+      |
+=========`,
+            `  +---+
+  |   |
+  O   |
+ /|   |
+      |
+      |
+=========`,
+            `  +---+
+  |   |
+  O   |
+  |   |
+      |
+      |
+=========`,
+            `  +---+
+  |   |
+  O   |
+      |
+      |
+      |
+=========`,
+            `  +---+
+  |   |
+      |
+      |
+      |
+      |
+=========`
+        ];
+
+        // Word list
+        const wordList = [
+            "algorithm", "binary", "bytecode", "cache", "compiler", "debug", "encryption", "firewall", "git", "hash",
+            "integer", "javascript", "kernel", "loop", "matrix", "namespace", "opcode", "pixel", "query", "regex",
+            "server", "thread", "unicode", "vector", "widget", "xml", "yaml", "zip", "array", "boolean",
+            "circuit", "daemon", "ethernet", "firmware", "gizmo", "heuristic", "interface", "joystick", "kilobyte", "logic",
+            "macro", "network", "octet", "packet", "quantum", "router", "script", "syntax", "terminal", "upload",
+            "virtual", "wireless", "xenon", "yottabyte", "zombie", "avatar", "blaster", "cyberpunk", "droid", "energy",
+            "forcefield", "galaxy", "hyperdrive", "impulse", "jedi", "klingon", "laser", "mech", "nebula", "orbital",
+            "photon", "reactor", "shield", "stargate", "teleport", "vortex", "warp", "xray", "android", "bandwidth",
+            "cosplay", "dungeon", "elf", "fandom", "goblin", "hitpoints", "inventory", "mana", "noob", "overclock",
+            "polygon", "render", "spawn", "texture", "unlock", "voxel", "wizard", "zeroday", "geek", "nerd"
+        ];
+
+        // Game state variables
+        let chosenWord;
+        let guessedLetters;
+        let correctGuesses;
+        let lives;
+        let gameOver;
+
+        // Start or reset the game
+        function startGame() {
+            chosenWord = wordList[Math.floor(Math.random() * wordList.length)];
+            guessedLetters = new Set();
+            correctGuesses = new Set();
+            lives = 6;
+            gameOver = false;
+            document.getElementById('guessInput').value = '';
+            document.getElementById('message').textContent = '';
+            document.getElementById('message').classList.remove('win', 'lose');
+            document.getElementById('playAgain').style.display = 'none';
+            document.getElementById('guessInput').disabled = false;
+            document.getElementById('guessButton').disabled = false;
+            updateDisplay();
+        }
+
+        // Update the game display
+        function updateDisplay() {
+            document.getElementById('hangman').textContent = stages[lives];
+            
+            const wordDisplay = document.getElementById('wordDisplay');
+            wordDisplay.innerHTML = '';
+            for (let letter of chosenWord) {
+                const span = document.createElement('span');
+                span.textContent = correctGuesses.has(letter) ? letter : '_';
+                if (correctGuesses.has(letter)) {
+                    span.classList.add('reveal');
+                }
+                wordDisplay.appendChild(span);
+            }
+            
+            document.getElementById('guessedLetters').textContent = Array.from(guessedLetters).sort().join(', ');
+            document.getElementById('lives').textContent = lives;
+        }
+
+        // Handle player guess
+        function handleGuess() {
+            const guessInput = document.getElementById('guessInput');
+            const guess = guessInput.value.toLowerCase();
+            guessInput.value = '';
+            
+            if (gameOver) return;
+            
+            if (guess.length !== 1 || !/[a-z]/.test(guess)) {
+                alert('Please enter a single letter (a-z).');
+                return;
+            }
+            
+            if (guessedLetters.has(guess)) {
+                alert('You have already guessed that letter.');
+                return;
+            }
+            
+            guessedLetters.add(guess);
+            
+            if (chosenWord.includes(guess)) {
+                correctGuesses.add(guess);
+            } else {
+                lives--;
+            }
+            
+            updateDisplay();
+            checkGameOver();
+        }
+
+        // Check for win or loss
+        function checkGameOver() {
+            const wordGuessed = [...chosenWord].every(letter => correctGuesses.has(letter));
+            const messageElement = document.getElementById('message');
+            if (wordGuessed) {
+                messageElement.textContent = 'You win!';
+                messageElement.classList.add('win');
+                endGame();
+            } else if (lives <= 0) {
+                messageElement.textContent = `Game over! The word was: ${chosenWord}`;
+                messageElement.classList.add('lose');
+                endGame();
+            }
+        }
+
+        // End the game
+        function endGame() {
+            gameOver = true;
+            document.getElementById('playAgain').style.display = 'block';
+            document.getElementById('guessInput').disabled = true;
+            document.getElementById('guessButton').disabled = true;
+        }
+
+        // Event listeners
+        document.getElementById('guessButton').addEventListener('click', handleGuess);
+        document.getElementById('guessInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleGuess();
+        });
+        document.getElementById('playAgain').addEventListener('click', startGame);
+
+        // Start the game initially
+        startGame();
+    </script>
+</body>
+</html>
