@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculador de Vida em Semanas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Balsamiq Sans', sans-serif;
+            background-color: #e0f7fa; /* Azul claro para um fundo calmo */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+            width: 400px;
+        }
+        h1 {
+            color: #333;
+            font-weight: 700;
+        }
+        p {
+            color: #666;
+        }
+        label {
+            display: block;
+            margin: 10px 0;
+            color: #333;
+        }
+        input[type="number"] {
+            padding: 5px;
+            width: 100px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50; /* Verde para o botão */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049; /* Verde mais escuro no hover */
+        }
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+            background-color: #e3f2fd; /* Azul bem claro para o resultado */
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .radio-group {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bem-vindo ao Calculador de Vida em Semanas</h1>
+        <p>O terror dos ansiosos!</p>
+        <label>Quer saber quantas semanas ou dias te restam?</label>
+        <div class="radio-group">
+            <input type="radio" name="choice" value="s"> Semanas
+            <input type="radio" name="choice" value="d"> Dias
+        </div>
+        <label>Quantos anos você já aguentou nesse planeta?</label>
+        <input type="number" id="age" placeholder="Digite sua idade">
+        <button id="calculate">Calcular</button>
+        <div id="result"></div>
+    </div>
+    <script>
+        const choiceInputs = document.querySelectorAll('input[name="choice"]');
+        const ageInput = document.getElementById('age');
+        const calculateButton = document.getElementById('calculate');
+        const resultDiv = document.getElementById('result');
+
+        calculateButton.addEventListener('click', () => {
+            const choice = document.querySelector('input[name="choice"]:checked');
+            if (!choice) {
+                resultDiv.textContent = "Por favor, selecione 's' para semanas ou 'd' para dias.";
+                resultDiv.style.opacity = '1';
+                return;
+            }
+
+            const age = parseInt(ageInput.value);
+            if (isNaN(age)) {
+                resultDiv.textContent = "Ei, coloca um número decente aí, não inventa moda!";
+                resultDiv.style.opacity = '1';
+                return;
+            }
+
+            let message;
+            if (age > 90) {
+                message = "Caramba, você é praticamente um dinossauro! Já passou da média da humanidade!";
+            } else if (age < 0) {
+                message = "Oi? Você ainda tá no ventre ou é viajante do tempo?";
+            } else if (age === 90) {
+                message = "Parabéns, você chegou na linha de chegada da média humana! Tá na prorrogação!";
+            } else if (age === 0) {
+                message = "Recém-saído do forno, hein? Aproveita o cheirinho de bebê!";
+            } else {
+                const yearsLeft = 90 - age;
+                if (choice.value === 's') {
+                    const weeksLeft = yearsLeft * 52;
+                    message = `Olha só: te sobram ${weeksLeft} semanas pra fazer algo útil... ou só comer brigadeiro!`;
+                } else {
+                    const daysLeft = yearsLeft * 365;
+                    message = `Olha o drama: te sobram ${daysLeft} dias pra gastar com Netflix ou tentar ser fitness!`;
+                }
+            }
+
+            resultDiv.textContent = message;
+            resultDiv.style.opacity = '1';
+        });
+    </script>
+</body>
+</html>

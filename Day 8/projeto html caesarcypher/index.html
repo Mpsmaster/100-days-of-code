@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Caesar Cipher</title>
+  <!-- Google Fonts: a monospaced font for the logo and a sans-serif for the rest -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Roboto:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    /* Background & overall layout */
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #f0f0f0;
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+      animation: fadeIn 1s ease-in-out;
+    }
+    
+    /* ASCII logo styling */
+    .logo {
+      font-family: 'Roboto Mono', monospace;
+      white-space: pre;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #d1d1d1;
+    }
+    
+    /* Form fields styling */
+    .form-field {
+      margin: 15px 0;
+      text-align: left;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      background: #262626;
+      color: #fff;
+    }
+    textarea {
+      height: 100px;
+      resize: vertical;
+    }
+    
+    /* Buttons styling */
+    button {
+      background: #4caf50;
+      color: #fff;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.3s, transform 0.3s;
+    }
+    button:hover {
+      background: #45a049;
+      transform: scale(1.05);
+    }
+    
+    /* Result styling */
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+      padding: 10px;
+      background: #333;
+      border-radius: 5px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 1s;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- ASCII Logo -->
+    <pre class="logo">
+ ,adPPYba, ,adPPYYba,  ,adPPYba, ,adPPYba, ,adPPYYba, 8b,dPPYba,  
+a8"     "" ""     `Y8 a8P_____88 I8[    "" ""     `Y8 88P'   "Y8  
+8b         ,adPPPPP88 8PP"""""""  `"Y8ba,  ,adPPPPP88 88          
+"8a,   ,aa 88,    ,88 "8b,   ,aa aa    ]8I 88,    ,88 88          
+ `"Ybbd8"' `"8bbdP"Y8  `"Ybbd8"' `"YbbdP"' `"8bbdP"Y8 88   
+            88             88                                 
+           ""             88                                 
+                          88                                 
+ ,adPPYba, 88 8b,dPPYba,  88,dPPYba,   ,adPPYba, 8b,dPPYba,  
+a8"     "" 88 88P'    "8a 88P'    "8a a8P_____88 88P'   "Y8  
+8b         88 88       d8 88       88 8PP""""""" 88          
+"8a,   ,aa 88 88b,   ,a8" 88       88 "8b,   ,aa 88          
+ `"Ybbd8"' 88 88`YbbdP"'  88       88  `"Ybbd8"' 88          
+              88                                             
+              88                 
+    </pre>
+    
+    <!-- Caesar cipher form -->
+    <div class="form-field">
+      <label for="direction">Choose Mode:</label>
+      <select id="direction">
+        <option value="encode">Encode</option>
+        <option value="decode">Decode</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="message">Your Message:</label>
+      <textarea id="message" placeholder="Type your message here..."></textarea>
+    </div>
+    <div class="form-field">
+      <label for="shift">Shift Number:</label>
+      <input type="number" id="shift" placeholder="Type the shift number here..." />
+    </div>
+    <button id="process">Process</button>
+    
+    <!-- Display the result -->
+    <div id="result"></div>
+    <button id="restart" style="display:none;">Restart Cipher</button>
+  </div>
+
+  <script>
+    // Function implementing the Caesar cipher
+    function caesarCipher(text, shift, direction) {
+      const alphabet = "abcdefghijklmnopqrstuvwxyz";
+      let result = "";
+      // Reverse the shift if the user selected decode mode
+      if (direction === "decode") {
+        shift = -shift;
+      }
+      for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        if (alphabet.includes(char)) {
+          const index = alphabet.indexOf(char);
+          let shiftedIndex = (index + shift) % alphabet.length;
+          if (shiftedIndex < 0) {
+            shiftedIndex += alphabet.length;
+          }
+          result += alphabet[shiftedIndex];
+        } else {
+          result += char;
+        }
+      }
+      return result;
+    }
+
+    // Process button event listener
+    document.getElementById("process").addEventListener("click", () => {
+      const direction = document.getElementById("direction").value;
+      const text = document.getElementById("message").value.toLowerCase();
+      const shiftInput = document.getElementById("shift").value;
+      const shift = parseInt(shiftInput, 10);
+
+      if (shiftInput === "" || isNaN(shift)) {
+        alert("Please enter a valid number for shift.");
+        return;
+      }
+      
+      const cipherText = caesarCipher(text, shift, direction);
+      document.getElementById("result").innerText =
+        `Here is the ${direction}d result: ${cipherText}`;
+      
+      // Show restart button
+      document.getElementById("restart").style.display = "inline-block";
+    });
+
+    // Restart button to clear the form for a new operation
+    document.getElementById("restart").addEventListener("click", function () {
+      document.getElementById("direction").value = "encode";
+      document.getElementById("message").value = "";
+      document.getElementById("shift").value = "";
+      document.getElementById("result").innerText = "";
+      this.style.display = "none";
+    });
+  </script>
+</body>
+</html>
