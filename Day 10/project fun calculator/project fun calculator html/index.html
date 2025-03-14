@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora Divertida</title>
+  <!-- Import Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Roboto', sans-serif;
+      height: 100%;
+      background: linear-gradient(45deg, #74ebd5, #ACB6E5);
+    }
+    
+    .calculator-container {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      padding: 40px;
+      max-width: 400px;
+      width: 90%;
+      margin: 50px auto;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #333;
+    }
+    
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      text-align: left;
+      font-weight: 500;
+      color: #555;
+    }
+    
+    input[type="number"], select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 15px;
+      font-size: 16px;
+      transition: border-color 0.3s ease;
+    }
+    
+    input[type="number"]:focus, select:focus {
+      outline: none;
+      border-color: #27ae60;
+    }
+    
+    button {
+      background-color: #27ae60;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    
+    button:hover {
+      background-color: #219150;
+      transform: scale(1.02);
+    }
+    
+    .result, .comment {
+      margin-top: 20px;
+      font-size: 18px;
+      opacity: 0;
+      animation: fadeIn 0.6s forwards;
+    }
+    
+    .comment {
+      margin-top: 10px;
+      color: #666;
+    }
+    
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    
+    /* Subtle confetti effect in the background when result appears */
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: rgba(39, 174, 96, 0.8);
+      top: -10px;
+      animation: fall 2s linear forwards;
+      opacity: 0.8;
+      border-radius: 50%;
+    }
+    
+    @keyframes fall {
+      to {
+        transform: translateY(300px) rotate(720deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator-container">
+    <h1>Calculadora Divertida!</h1>
+    <form id="calcForm">
+      <label for="num1">Digite o primeiro número:</label>
+      <input type="number" id="num1" step="any" required placeholder="Ex.: 10">
+      
+      <label for="operacao">Selecione a operação:</label>
+      <select id="operacao" required>
+        <option value="+">+</option>
+        <option value="-">-</option>
+        <option value="*">*</option>
+        <option value="/">/</option>
+      </select>
+      
+      <label for="num2">Digite o segundo número:</label>
+      <input type="number" id="num2" step="any" required placeholder="Ex.: 5">
+      
+      <button type="submit">Calcular</button>
+    </form>
+    <div class="result"></div>
+    <div class="comment"></div>
+  </div>
+  
+  <script>
+    const form = document.getElementById('calcForm');
+    const resultDiv = document.querySelector('.result');
+    const commentDiv = document.querySelector('.comment');
+    
+    // Lista de comentários engraçados
+    const comentarios = [
+      "Você deve tudo isso??? Tá devendo até pro cálculo!",
+      "Até minha avó calcula mais rápido que isso!",
+      "Números tão fáceis e você ainda usa calculadora?",
+      "Parabéns, você não explodiu a matemática... ainda!",
+      "Isso aí é resultado ou chute de loteria?",
+      "O número agradece por não ter errado feio!",
+      "Tá vendo? Não é tão difícil assim, né?",
+      "Cê jura que precisava de ajuda pra isso?",
+      "Olha, o gênio da lâmpada dos números!",
+      "Deu certo? Milagre ou sorte?",
+      "Esse cálculo tá mais perdido que você na escola!",
+      "A calculadora chorou pra te ajudar nisso!",
+      "Nem o Google faz tão devagar, hein!",
+      "Você e os números: uma comédia sem fim!",
+      "A matemática tá rindo da sua cara agora!",
+      "Esse resultado tá mais ou menos... mais pra menos!",
+      "Eu que fiz o trabalho pesado aqui, admite!",
+      "Você + números = confusão garantida!",
+      "Tá orgulhoso? Minha planta calcula melhor!",
+      "Se fosse prova, já era, hein!"
+    ];
+    
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      
+      // Limpa resultados anteriores
+      resultDiv.innerHTML = "";
+      commentDiv.innerHTML = "";
+      
+      const num1 = parseFloat(document.getElementById('num1').value);
+      const operacao = document.getElementById('operacao').value;
+      const num2 = parseFloat(document.getElementById('num2').value);
+      
+      // Validação dos números
+      if (isNaN(num1) || isNaN(num2)) {
+        resultDiv.textContent = "Erro: Digite números válidos, por favor!";
+        return;
+      }
+      
+      let resultado, mensagem = "";
+      
+      // Realiza o cálculo com base na operação escolhida
+      switch (operacao) {
+        case '+':
+          resultado = num1 + num2;
+          mensagem = `${num1} + ${num2} = ${resultado}`;
+          break;
+        case '-':
+          resultado = num1 - num2;
+          mensagem = `${num1} - ${num2} = ${resultado}`;
+          break;
+        case '*':
+          resultado = num1 * num2;
+          mensagem = `${num1} * ${num2} = ${resultado}`;
+          break;
+        case '/':
+          if (num2 === 0) {
+            resultDiv.textContent = "Erro: Não dá pra dividir por zero, né?";
+            return;
+          } else {
+            resultado = num1 / num2;
+            mensagem = `${num1} / ${num2} = ${resultado}`;
+          }
+          break;
+        default:
+          resultDiv.textContent = "Operação inválida! Use +, -, *, ou /";
+          return;
+      }
+      
+      // Exibe o resultado com efeito fade-in
+      resultDiv.textContent = mensagem;
+      commentDiv.textContent = `😂 ${comentarios[Math.floor(Math.random() * comentarios.length)]}`;
+      
+      // Gera partículas de "confete" para um efeito visual divertido
+      criarConfete();
+    });
+    
+    // Função para criar um efeito de confete simples
+    function criarConfete() {
+      const container = document.querySelector('.calculator-container');
+      for (let i = 0; i < 15; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.backgroundColor = getRandomColor();
+        // Remover o confete após a animação
+        confetti.addEventListener('animationend', () => {
+          confetti.remove();
+        });
+        container.appendChild(confetti);
+      }
+    }
+    
+    // Função para obter uma cor aleatória suave
+    function getRandomColor() {
+      const colors = ['#ff9a9e', '#fad0c4', '#fbc2eb', '#a18cd1', '#fbc2eb', '#ffecd2'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo Testador de Sorte</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Fredoka One', cursive;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    #game-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 600px;
+      width: 90%;
+    }
+    h1 {
+      color: #ff69b4;
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    p {
+      font-size: 1.2em;
+      color: #333;
+    }
+    .number-container {
+      margin: 20px 0;
+    }
+    .number {
+      font-size: 1.5em;
+      width: 60px;
+      height: 60px;
+      line-height: 60px;
+      background-color: #e0e0e0;
+      border-radius: 10px;
+      display: inline-block;
+      margin: 0 10px;
+      transition: all 0.3s ease;
+    }
+    @keyframes bounce {
+      0% { transform: scale(0); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    .bounce {
+      animation: bounce 0.5s ease;
+    }
+    #magic-number {
+      color: #ff4500;
+      font-size: 1.8em;
+    }
+    #result {
+      font-size: 1.3em;
+      margin: 20px 0;
+      min-height: 1.3em;
+    }
+    #win-count {
+      color: #4CAF50;
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 25px;
+      font-size: 1.2em;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    button:hover:not(:disabled) {
+      transform: scale(1.05);
+    }
+    #spin-button {
+      background-color: #4CAF50;
+      color: white;
+    }
+    #quit-button {
+      background-color: #ff4444;
+      color: white;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <h1>Jogo Testador de Sorte</h1>
+    <p>Bem-vindo! A gente escolhe um número mágico, e se pelo menos dois dos quatro números forem divisíveis por ele, você ganha fácil!</p>
+    <p>Número Mágico: <span id="magic-number">?</span></p>
+    <div class="number-container">
+      <span class="number" id="num1">?</span>
+      <span class="number" id="num2">?</span>
+      <span class="number" id="num3">?</span>
+      <span class="number" id="num4">?</span>
+    </div>
+    <div id="result"></div>
+    <p>Vitórias acumuladas: <span id="win-count">0</span></p>
+    <button id="spin-button">Girar</button>
+    <button id="quit-button">Sair</button>
+  </div>
+
+  <script>
+    let vitorias = 0;
+
+    // Delay function for suspenseful number reveal
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Spin function with animations and game logic
+    async function spin() {
+      const spinButton = document.getElementById('spin-button');
+      spinButton.disabled = true;
+
+      // Reset display
+      document.getElementById('result').textContent = '';
+      for (let i = 1; i <= 4; i++) {
+        document.getElementById(`num${i}`).textContent = '?';
+      }
+
+      // Generate numbers
+      const num_div = Math.floor(Math.random() * 3) + 2; // 2 to 4
+      const numbers = Array.from({ length: 4 }, () => Math.floor(Math.random() * 20) + 1);
+
+      // Show magic number
+      document.getElementById('magic-number').textContent = num_div;
+
+      // Reveal numbers one by one with animation
+      for (let i = 0; i < 4; i++) {
+        await delay(1000); // 1-second delay between each number
+        const numElement = document.getElementById(`num${i + 1}`);
+        numElement.textContent = numbers[i];
+        numElement.classList.add('bounce');
+        setTimeout(() => numElement.classList.remove('bounce'), 500); // Remove animation class after it plays
+      }
+
+      // Check win condition
+      const divisibleCount = numbers.filter(num => num % num_div === 0).length;
+      if (divisibleCount >= 2) {
+        document.getElementById('result').textContent = "É isso aí! Você ganhou, seu sortudo!";
+        vitorias++;
+        document.getElementById('win-count').textContent = vitorias;
+      } else {
+        document.getElementById('result').textContent = "Nossa, perdeu? Que azar hein!";
+      }
+
+      spinButton.disabled = false; // Re-enable button after spin
+    }
+
+    // Quit function
+    function quit() {
+      alert(`Valeu, lenda! Você terminou com ${vitorias} vitórias no bolso!`);
+    }
+
+    // Add event listeners
+    document.getElementById('spin-button').addEventListener('click', spin);
+    document.getElementById('quit-button').addEventListener('click', quit);
+  </script>
+</body>
+</html>

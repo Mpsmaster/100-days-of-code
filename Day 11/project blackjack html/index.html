@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack - A Festa das Cartas!</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Lobster&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Blackjack - A Festa das Cartas!</h1>
+        <div id="intro-screen">
+            <p>Bem-vindo ao Jogo de Blackjack, parceiro!</p>
+            <p>Quer aprender a jogar ou já quer sair apostando?</p>
+            <button id="tutorial-btn">Sim, quero aprender!</button>
+            <button id="play-btn">Não, vamos jogar direto!</button>
+        </div>
+
+        <div id="tutorial-screen" class="hidden">
+            <h2>Tutorial Rápido - A Festa das Cartas!</h2>
+            <ul>
+                <li>1. Chegue o mais perto de 21 pontos sem passar, ou "estoure" e já era!</li>
+                <li>2. Você começa com 2 cartas e pode pedir mais ou parar.</li>
+                <li>3. O Ás (11) vira 1 se passar de 21. Esperto, né?</li>
+                <li>4. 21 com as 2 primeiras cartas? BLACKJACK! Vitória na hora!</li>
+                <li>5. O computador joga depois e para em 17 ou mais.</li>
+                <li>6. Quem tiver mais pontos sem estourar ganha!</li>
+            </ul>
+            <button id="start-after-tutorial">Pronto pra arrasar? Vamos lá!</button>
+        </div>
+
+        <div id="game-screen" class="hidden">
+            <div id="player-hand">
+                <h2>Sua Mão</h2>
+                <div id="player-cards" class="card-container"></div>
+                <p>Pontos: <span id="player-score">0</span></p>
+            </div>
+            <div id="computer-hand">
+                <h2>Mão do Computador</h2>
+                <div id="computer-cards" class="card-container"></div>
+                <p>Pontos: <span id="computer-score">?</span></p>
+            </div>
+            <div id="message-box"></div>
+            <div id="tutorial-box" class="hidden"></div>
+            <div id="controls">
+                <button id="draw-card">Pegar Carta</button>
+                <button id="stand">Parar</button>
+            </div>
+            <button id="play-again" class="hidden">Jogar Novamente?</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
