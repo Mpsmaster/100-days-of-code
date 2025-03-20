@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz dos Temperamentos Humanos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      color: #333;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    #quiz-container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      padding: 5vw;
+      max-width: 90vw;
+      width: 100%;
+      transition: transform 0.3s ease;
+      box-sizing: border-box;
+    }
+    #quiz-container:hover {
+      transform: scale(1.02);
+    }
+    h1 {
+      text-align: center;
+      color: #6a11cb;
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      margin-bottom: 4vw;
+    }
+    #question {
+      font-size: clamp(1rem, 3.5vw, 1.3rem);
+      margin-bottom: 5vw;
+      line-height: 1.4;
+    }
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+    }
+    .btn {
+      padding: clamp(8px, 2.5vw, 12px) clamp(15px, 4vw, 25px);
+      font-size: clamp(0.9rem, 3vw, 1.1rem);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      touch-action: manipulation;
+    }
+    #true-btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+    #true-btn:hover {
+      background-color: #45a049;
+      transform: translateY(-2px);
+    }
+    #false-btn {
+      background-color: #f44336;
+      color: white;
+    }
+    #false-btn:hover {
+      background-color: #da190b;
+      transform: translateY(-2px);
+    }
+    #feedback {
+      margin-top: 3vw;
+      font-size: clamp(1rem, 3.2vw, 1.2rem);
+      display: none;
+      text-align: center;
+    }
+    #next-btn {
+      display: none;
+      margin: 4vw auto 0;
+      background-color: #2196F3;
+      color: white;
+      padding: clamp(8px, 2.5vw, 10px) clamp(20px, 5vw, 30px);
+    }
+    #next-btn:hover {
+      background-color: #0b7dda;
+      transform: translateY(-2px);
+    }
+    #score {
+      text-align: center;
+      font-size: clamp(0.9rem, 2.8vw, 1.1rem);
+      margin-top: 4vw;
+      color: #555;
+    }
+    #result {
+      display: none;
+      text-align: center;
+    }
+    #result p {
+      font-size: clamp(1rem, 3.5vw, 1.3rem);
+      margin: 2vw 0;
+    }
+    #play-again-btn {
+      background-color: #FFC107;
+      color: white;
+      margin-top: 4vw;
+      padding: clamp(8px, 2.5vw, 10px) clamp(20px, 5vw, 30px);
+    }
+    #play-again-btn:hover {
+      background-color: #e0a800;
+      transform: translateY(-2px);
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mobile-specific adjustments */
+    @media (max-width: 600px) {
+      .button-container {
+        flex-direction: column;
+        align-items: center;
+      }
+      .button-container .btn {
+        width: 80%;
+      }
+      #next-btn, #play-again-btn {
+        width: 80%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="quiz-container">
+    <h1>Quiz dos Temperamentos Humanos</h1>
+    <div id="question"></div>
+    <div class="button-container">
+      <button id="true-btn" class="btn">Verdadeiro</button>
+      <button id="false-btn" class="btn">Falso</button>
+    </div>
+    <div id="feedback"></div>
+    <button id="next-btn" class="btn">Próxima</button>
+    <div id="score">Acertos: 0 / Total: 0</div>
+    <div id="result">
+      <p id="result-text"></p>
+      <button id="play-again-btn" class="btn">Jogar Novamente</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      { question: "Indivíduos sanguinos são frequentemente muito sociáveis e gostam de interagir com os outros.", correct: "T" },
+      { question: "Pessoas sanguinas tendem a ser otimistas e abordam a vida com entusiasmo.", correct: "T" },
+      { question: "Personalidades sanguinas são tipicamente adaptáveis a novas situações.", correct: "T" },
+      { question: "Indivíduos sanguinos são frequentemente muito reservados e introvertidos.", correct: "F" },
+      { question: "Pessoas sanguinas são conhecidas por sua energia e vivacidade.", correct: "T" },
+      { question: "Indivíduos sanguinos geralmente têm facilidade em fazer amigos.", correct: "T" },
+      { question: "Personalidades sanguinas são tipicamente muito organizadas e metódicas.", correct: "F" },
+      { question: "Pessoas sanguinas são frequentemente muito expressivas e comunicativas.", correct: "T" },
+      { question: "Indivíduos sanguinos são conhecidos por sua paciência e tranquilidade.", correct: "F" },
+      { question: "Personalidades sanguinas são geralmente muito criativas e imaginativas.", correct: "T" },
+      { question: "Pessoas sanguinas podem ter dificuldade em manter o foco por longos períodos.", correct: "T" },
+      { question: "Indivíduos sanguinos frequentemente procrastinam tarefas importantes.", correct: "T" },
+      { question: "Personalidades sanguinas são tipicamente muito pontuais e organizadas.", correct: "F" },
+      { question: "Pessoas sanguinas podem ser impulsivas em suas decisões.", correct: "T" },
+      { question: "Indivíduos sanguinos são conhecidos por sua habilidade em lidar com críticas.", correct: "F" },
+      { question: "Personalidades sanguinas frequentemente evitam conflitos a todo custo.", correct: "F" },
+      { question: "Pessoas sanguinas podem ter dificuldade em cumprir prazos.", correct: "T" },
+      { question: "Indivíduos sanguinos são tipicamente muito disciplinados em suas rotinas.", correct: "F" },
+      { question: "Personalidades sanguinas frequentemente falam sem pensar nas consequências.", correct: "T" },
+      { question: "Pessoas sanguinas são conhecidas por sua habilidade em manter a calma sob pressão.", correct: "F" },
+      { question: "Indivíduos fleumáticos são conhecidos por sua calma e compostura em situações difíceis.", correct: "T" },
+      { question: "Pessoas fleumáticas tendem a ser muito pacientes e tolerantes.", correct: "T" },
+      { question: "Personalidades fleumáticas são tipicamente muito confiáveis e consistentes.", correct: "T" },
+      { question: "Indivíduos fleumáticos são frequentemente muito impulsivos e agitados.", correct: "F" },
+      { question: "Pessoas fleumáticas são conhecidas por sua habilidade em mediar conflitos.", correct: "T" },
+      { question: "Indivíduos fleumáticos geralmente preferem rotinas estáveis e previsíveis.", correct: "T" },
+      { question: "Personalidades fleumáticas são tipicamente muito extrovertidas e falantes.", correct: "F" },
+      { question: "Pessoas fleumáticas são frequentemente muito empáticas e compreensivas.", correct: "T" },
+      { question: "Indivíduos fleumáticos são conhecidos por sua habilidade em tomar decisões rápidas.", correct: "F" },
+      { question: "Personalidades fleumáticas são geralmente muito leais e dedicadas.", correct: "T" },
+      { question: "Pessoas fleumáticas podem ter dificuldade em iniciar novas tarefas.", correct: "T" },
+      { question: "Indivíduos fleumáticos frequentemente evitam assumir riscos.", correct: "T" },
+      { question: "Personalidades fleumáticas são tipicamente muito assertivas e decididas.", correct: "F" },
+      { question: "Pessoas fleumáticas podem demorar para tomar decisões importantes.", correct: "T" },
+      { question: "Indivíduos fleumáticos são conhecidos por sua habilidade em expressar emoções livremente.", correct: "F" },
+      { question: "Personalidades fleumáticas frequentemente são muito competitivas.", correct: "F" },
+      { question: "Pessoas fleumáticas podem ser muito passivas em situações de grupo.", correct: "T" },
+      { question: "Indivíduos fleumáticos são tipicamente muito motivados e ambiciosos.", correct: "F" },
+      { question: "Personalidades fleumáticas frequentemente têm dificuldade em definir metas claras.", correct: "T" },
+      { question: "Pessoas fleumáticas são conhecidas por sua habilidade em lidar com mudanças rápidas.", correct: "F" },
+      { question: "Indivíduos coléricos são frequentemente muito confiantes e assertivos.", correct: "T" },
+      { question: "Pessoas coléricas tendem a ser muito determinadas e focadas em objetivos.", correct: "T" },
+      { question: "Personalidades coléricas são tipicamente muito eficientes e organizadas.", correct: "T" },
+      { question: "Indivíduos coléricos são frequentemente muito pacientes e tolerantes.", correct: "F" },
+      { question: "Pessoas coléricas são conhecidas por sua habilidade em liderar equipes.", correct: "T" },
+      { question: "Indivíduos coléricos geralmente são muito enérgicos e proativos.", correct: "T" },
+      { question: "Personalidades coléricas são tipicamente muito sensíveis e emotivas.", correct: "F" },
+      { question: "Pessoas coléricas são frequentemente muito resilientes e persistentes.", correct: "T" },
+      { question: "Indivíduos coléricos são conhecidos por sua habilidade em trabalhar sob pressão.", correct: "T" },
+      { question: "Personalidades coléricas são geralmente muito detalhistas e meticulosas.", correct: "F" },
+      { question: "Pessoas coléricas podem ser muito controladoras em situações de grupo.", correct: "T" },
+      { question: "Indivíduos coléricos frequentemente reagem com frustração ou raiva rapidamente.", correct: "T" },
+      { question: "Personalidades coléricas são tipicamente muito pacientes com erros alheios.", correct: "F" },
+      { question: "Pessoas coléricas podem ter dificuldade em relaxar ou descansar.", correct: "T" },
+      { question: "Indivíduos coléricos são conhecidos por sua habilidade em ouvir atentamente.", correct: "F" },
+      { question: "Personalidades coléricas frequentemente são muito modestas e reservadas.", correct: "F" },
+      { question: "Pessoas coléricas podem ser excessivamente exigentes consigo mesmas e com os outros.", correct: "T" },
+      { question: "Indivíduos coléricos são tipicamente muito flexíveis e adaptáveis.", correct: "F" },
+      { question: "Personalidades coléricas frequentemente priorizam o trabalho sobre o lazer.", correct: "T" },
+      { question: "Pessoas coléricas são conhecidas por sua habilidade em manter a calma em adversidades.", correct: "F" },
+      { question: "Indivíduos melancólicos são frequentemente muito reflexivos e analíticos.", correct: "T" },
+      { question: "Pessoas melancólicas tendem a ser muito detalhistas e perfeccionistas.", correct: "T" },
+      { question: "Personalidades melancólicas são tipicamente muito criativas e artísticas.", correct: "T" },
+      { question: "Indivíduos melancólicos são frequentemente muito impulsivos e espontâneos.", correct: "F" },
+      { question: "Pessoas melancólicas são conhecidas por sua habilidade em planejar e organizar.", correct: "T" },
+      { question: "Indivíduos melancólicos geralmente são muito leais e confiáveis.", correct: "T" },
+      { question: "Personalidades melancólicas são tipicamente muito extrovertidas e sociáveis.", correct: "F" },
+      { question: "Pessoas melancólicas são frequentemente muito empáticas e sensíveis.", correct: "T" },
+      { question: "Indivíduos melancólicos são conhecidos por sua habilidade em resolver problemas complexos.", correct: "T" },
+      { question: "Personalidades melancólicas são geralmente muito adaptáveis a mudanças.", correct: "F" },
+      { question: "Pessoas melancólicas podem estabelecer padrões muito altos para si mesmas.", correct: "T" },
+      { question: "Indivíduos melancólicos frequentemente preocupam-se excessivamente com detalhes.", correct: "T" },
+      { question: "Personalidades melancólicas são tipicamente muito confiantes e seguras.", correct: "F" },
+      { question: "Pessoas melancólicas podem ter dificuldade em lidar com críticas.", correct: "T" },
+      { question: "Indivíduos melancólicos são conhecidos por sua habilidade em manter o otimismo.", correct: "F" },
+      { question: "Personalidades melancólicas frequentemente são muito impulsivas em suas ações.", correct: "F" },
+      { question: "Pessoas melancólicas podem ser excessivamente autocríticas.", correct: "T" },
+      { question: "Indivíduos melancólicos são tipicamente muito confortáveis em situações sociais.", correct: "F" },
+      { question: "Personalidades melancólicas frequentemente têm dificuldade em delegar tarefas.", correct: "T" },
+      { question: "Pessoas melancólicas são conhecidas por sua habilidade em lidar com mudanças rápidas.", correct: "F" },
+      { question: "Indivíduos sanguinos são frequentemente mais estruturados do que os melancólicos.", correct: "F" },
+      { question: "Pessoas fleumáticas são tipicamente melhores em manter a calma do que os coléricos.", correct: "T" },
+      { question: "Indivíduos coléricos são geralmente mais pacientes do que os sanguinos.", correct: "F" },
+      { question: "Personalidades melancólicas são frequentemente mais artísticas do que as fleumáticas.", correct: "T" },
+      { question: "Pessoas sanguinas são tipicamente melhores planejadores do que os melancólicos.", correct: "F" },
+      { question: "Indivíduos fleumáticos são frequentemente mais decididos do que os coléricos.", correct: "F" },
+      { question: "Pessoas coléricas são geralmente mais sensíveis do que as melancólicas.", correct: "F" },
+      { question: "Indivíduos melancólicos são frequentemente menos sociáveis do que os sanguinos.", correct: "T" },
+      { question: "Personalidades sanguinas são tipicamente mais reservadas do que as fleumáticas.", correct: "F" },
+      { question: "Pessoas fleumáticas são frequentemente mais orientadas a objetivos do que os coléricos.", correct: "F" },
+      { question: "Os quatro temperamentos originaram-se de teorias antigas de personalidade.", correct: "T" },
+      { question: "Cada temperamento tem suas próprias forças e limitações únicas.", correct: "T" },
+      { question: "Aprender sobre temperamentos pode melhorar o trabalho em equipe e a compreensão mútua.", correct: "T" },
+      { question: "A maioria das pessoas exibe traços de mais de um temperamento.", correct: "T" },
+      { question: "Os temperamentos são fixos e não podem mudar ao longo do tempo.", correct: "F" },
+      { question: "O temperamento sanguino é tradicionalmente associado ao elemento ar.", correct: "T" },
+      { question: "O temperamento fleumático é associado ao elemento água.", correct: "T" },
+      { question: "O temperamento colérico é ligado ao elemento fogo.", correct: "T" },
+      { question: "O temperamento melancólico é conectado ao elemento terra.", correct: "T" },
+      { question: "Compreender os temperamentos pode orientar escolhas de carreira e vida.", correct: "T" }
+    ];
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    let quizQuestions = shuffle([...questions]).slice(0, 10);
+    let currentQuestionIndex = 0;
+    let score = 0;
+    const totalQuestions = quizQuestions.length;
+
+    const questionEl = document.getElementById('question');
+    const trueBtn = document.getElementById('true-btn');
+    const falseBtn = document.getElementById('false-btn');
+    const feedbackEl = document.getElementById('feedback');
+    const nextBtn = document.getElementById('next-btn');
+    const scoreEl = document.getElementById('score');
+    const resultEl = document.getElementById('result');
+    const resultTextEl = document.getElementById('result-text');
+    const playAgainBtn = document.getElementById('play-again-btn');
+
+    function displayQuestion() {
+      const currentQuestion = quizQuestions[currentQuestionIndex];
+      questionEl.textContent = currentQuestion.question;
+      questionEl.classList.add('fade-in');
+      setTimeout(() => questionEl.classList.remove('fade-in'), 500);
+      feedbackEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+      trueBtn.disabled = false;
+      falseBtn.disabled = false;
+      scoreEl.textContent = `Acertos: ${score} / Total: ${totalQuestions}`;
+    }
+
+    displayQuestion();
+
+    function checkAnswer(answer) {
+      const currentQuestion = quizQuestions[currentQuestionIndex];
+      if (answer === currentQuestion.correct) {
+        feedbackEl.textContent = "Correto! Você está aprendendo bem sobre os temperamentos.";
+        feedbackEl.style.color = '#4CAF50';
+        score++;
+      } else {
+        feedbackEl.textContent = `Incorreto. A resposta correta era ${currentQuestion.correct === 'T' ? 'Verdadeiro' : 'Falso'}. Continue praticando!`;
+        feedbackEl.style.color = '#f44336';
+      }
+      feedbackEl.style.display = 'block';
+      feedbackEl.classList.add('fade-in');
+      setTimeout(() => feedbackEl.classList.remove('fade-in'), 500);
+      trueBtn.disabled = true;
+      falseBtn.disabled = true;
+      nextBtn.style.display = 'block';
+    }
+
+    trueBtn.addEventListener('click', () => checkAnswer('T'));
+    falseBtn.addEventListener('click', () => checkAnswer('F'));
+
+    nextBtn.addEventListener('click', () => {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < totalQuestions) {
+        displayQuestion();
+      } else {
+        showResults();
+      }
+    });
+
+    function showResults() {
+      const percentage = (score / totalQuestions) * 100;
+      let message;
+      if (percentage === 100) {
+        message = "Excelente! Você demonstrou um ótimo entendimento dos temperamentos humanos.";
+      } else if (percentage >= 70) {
+        message = "Bom trabalho! Você tem um bom conhecimento sobre os temperamentos.";
+      } else {
+        message = "Não foi dessa vez. Continue praticando para melhorar seu conhecimento sobre os temperamentos.";
+      }
+      resultTextEl.textContent = `Você acertou ${score} de ${totalQuestions} (${percentage}%). ${message}`;
+      questionEl.style.display = 'none';
+      trueBtn.style.display = 'none';
+      falseBtn.style.display = 'none';
+      feedbackEl.style.display = 'none';
+      nextBtn.style.display = 'none';
+      scoreEl.style.display = 'none';
+      resultEl.style.display = 'block';
+      resultEl.classList.add('fade-in');
+    }
+
+    playAgainBtn.addEventListener('click', () => {
+      quizQuestions = shuffle([...questions]).slice(0, 10);
+      currentQuestionIndex = 0;
+      score = 0;
+      resultEl.style.display = 'none';
+      questionEl.style.display = 'block';
+      trueBtn.style.display = 'inline-block';
+      falseBtn.style.display = 'inline-block';
+      scoreEl.style.display = 'block';
+      displayQuestion();
+    });
+  </script>
+</body>
+</html>

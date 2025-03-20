@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Mais Buscado</title>
+    <!-- Google Fonts: Roboto -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 10px;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .game-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo h1 {
+            text-align: center;
+            font-size: clamp(1.5rem, 5vw, 2.5rem); /* Responsive font size */
+            margin: 0;
+            color: #2c3e50;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .instructions {
+            text-align: center;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            margin: 10px 0 15px;
+            color: #7f8c8d;
+        }
+
+        .high-score, .score {
+            text-align: center;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            margin-bottom: 15px;
+        }
+
+        .game-area {
+            display: flex;
+            flex-wrap: wrap; /* Wrap on small screens */
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px; /* Space between elements */
+        }
+
+        .topic {
+            width: clamp(150px, 40vw, 200px); /* Responsive width */
+            height: 80px;
+            background-color: #ecf0f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
+            padding: 5px;
+        }
+
+        .topic:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .vs {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .choices {
+            text-align: center;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .choices button {
+            padding: clamp(8px, 2vw, 10px) clamp(15px, 3vw, 20px);
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            cursor: pointer;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .choices button:hover:not(:disabled) {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .choices button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .message {
+            text-align: center;
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            margin-bottom: 15px;
+            min-height: 20px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .message.show {
+            opacity: 1;
+        }
+
+        .play-again {
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .play-again p {
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            margin-bottom: 10px;
+        }
+
+        .play-again button {
+            padding: clamp(8px, 2vw, 10px) clamp(15px, 3vw, 20px);
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            cursor: pointer;
+            border: none;
+            background-color: #2ecc71;
+            color: white;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.2s;
+            margin: 0 5px;
+        }
+
+        .play-again button:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        /* Media Queries for Mobile */
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 10px;
+            }
+
+            .game-area {
+                flex-direction: column;
+            }
+
+            .topic {
+                width: 80%;
+                height: 60px;
+            }
+
+            .choices {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="logo">
+            <h1>Jogo Mais Buscado</h1>
+        </div>
+        <div class="instructions">
+            Adivinhe qual tópico tem mais buscas no Google!
+        </div>
+        <div class="high-score">
+            Pontuação Máxima: <span id="high-score">0</span>
+        </div>
+        <div class="game-area">
+            <div class="topic" id="topic1"></div>
+            <div class="vs">VS</div>
+            <div class="topic" id="topic2"></div>
+        </div>
+        <div class="choices">
+            <button id="choose1">Escolher 1</button>
+            <button id="choose2">Escolher 2</button>
+        </div>
+        <div class="score">
+            Sua Pontuação: <span id="score">0</span>
+        </div>
+        <div class="message" id="message"></div>
+        <div class="play-again" id="play-again" style="display: none;">
+            <p>Quer jogar novamente?</p>
+            <button id="yes">Sim</button>
+            <button id="no">Não</button>
+        </div>
+    </div>
+
+    <script>
+        // Dados em português com volumes de busca (em milhões)
+        const data = [
+            {'name': 'YouTube', 'searches': 361.6}, {'name': 'Facebook', 'searches': 144.5},
+            {'name': 'Amazon', 'searches': 120.3}, {'name': 'Google', 'searches': 100.2},
+            {'name': 'Clima', 'searches': 81.0}, {'name': 'TikTok', 'searches': 74.5},
+            {'name': 'Instagram', 'searches': 60.8}, {'name': 'Netflix', 'searches': 50.1},
+            {'name': 'Gmail', 'searches': 45.7}, {'name': 'Wordle', 'searches': 40.3},
+            {'name': 'Twitter', 'searches': 35.6}, {'name': 'WhatsApp', 'searches': 33.4},
+            {'name': 'NBA', 'searches': 30.5}, {'name': 'eBay', 'searches': 28.9},
+            {'name': 'Eleição nos EUA', 'searches': 25.0}, {'name': 'Copa América', 'searches': 22.7},
+            {'name': 'Olimpíadas', 'searches': 20.8}, {'name': 'Donald Trump', 'searches': 18.5},
+            {'name': 'Taylor Swift', 'searches': 17.2}, {'name': 'ChatGPT', 'searches': 15.9},
+            {'name': 'Walmart', 'searches': 14.8}, {'name': 'Copa do Mundo de Críquete', 'searches': 14.5},
+            {'name': 'Apple', 'searches': 14.2}, {'name': 'Tesla', 'searches': 13.9},
+            {'name': 'BBC Notícias', 'searches': 13.4}, {'name': 'Premier League', 'searches': 13.0},
+            {'name': 'Microsoft', 'searches': 12.7}, {'name': 'PayPal', 'searches': 12.4},
+            {'name': 'Spotify', 'searches': 12.1}, {'name': 'LinkedIn', 'searches': 11.8},
+            {'name': 'Pornhub', 'searches': 11.5}, {'name': 'Yahoo', 'searches': 11.2},
+            {'name': 'Hotmail', 'searches': 10.9}, {'name': 'Samsung', 'searches': 10.6},
+            {'name': 'Reddit', 'searches': 10.3}, {'name': 'Target', 'searches': 10.0},
+            {'name': 'Elon Musk', 'searches': 9.7}, {'name': 'NFL', 'searches': 9.4},
+            {'name': 'Disney+', 'searches': 9.1}, {'name': 'Zoom', 'searches': 8.8},
+            {'name': 'Canva', 'searches': 8.5}, {'name': 'Wikipédia', 'searches': 8.2},
+            {'name': 'Airbnb', 'searches': 7.9}, {'name': 'Roblox', 'searches': 7.6},
+            {'name': 'Fortnite', 'searches': 7.3}, {'name': 'Cristiano Ronaldo', 'searches': 7.0},
+            {'name': 'McDonalds', 'searches': 6.7}, {'name': 'Bitcoin', 'searches': 6.4},
+            {'name': 'Uber', 'searches': 6.1}, {'name': 'Copa do Mundo', 'searches': 5.9},
+            {'name': 'Kamala Harris', 'searches': 5.6}, {'name': 'CNN', 'searches': 5.4},
+            {'name': 'Snapchat', 'searches': 5.2}, {'name': 'X', 'searches': 5.0},
+            {'name': 'Pepsi', 'searches': 4.8}, {'name': 'Adidas', 'searches': 4.6},
+            {'name': 'Nike', 'searches': 4.4}, {'name': 'Hulu', 'searches': 4.2},
+            {'name': 'Traduzir', 'searches': 4.0}, {'name': 'iPhone', 'searches': 3.8},
+            {'name': 'Shein', 'searches': 3.6}, {'name': 'Fox News', 'searches': 3.4},
+            {'name': 'Discord', 'searches': 3.2}, {'name': 'Barack Obama', 'searches': 3.0},
+            {'name': 'Costco', 'searches': 2.9}, {'name': 'Grammy', 'searches': 2.8},
+            {'name': 'Harry Potter', 'searches': 2.7}, {'name': 'Kendrick Lamar', 'searches': 2.6},
+            {'name': 'Super Bowl', 'searches': 2.5}, {'name': 'Beyoncé', 'searches': 2.4},
+            {'name': 'Etsy', 'searches': 2.3}, {'name': 'Coronavírus', 'searches': 2.2},
+            {'name': 'PlayStation', 'searches': 2.1}, {'name': 'Xbox', 'searches': 2.0},
+            {'name': 'Mudança Climática', 'searches': 1.9}, {'name': 'Lionel Messi', 'searches': 1.8},
+            {'name': 'SpaceX', 'searches': 1.7}, {'name': 'Dua Lipa', 'searches': 1.6},
+            {'name': 'Reels do Instagram', 'searches': 1.5}, {'name': 'Amazon Prime', 'searches': 1.4}
+        ];
+
+        // Variáveis de estado do jogo
+        let highScore = 0;
+        let currentScore = 0;
+        let topic1, topic2;
+
+        // Elementos DOM
+        const topic1Elem = document.getElementById('topic1');
+        const topic2Elem = document.getElementById('topic2');
+        const scoreElem = document.getElementById('score');
+        const highScoreElem = document.getElementById('high-score');
+        const messageElem = document.getElementById('message');
+        const playAgainElem = document.getElementById('play-again');
+        const choose1Btn = document.getElementById('choose1');
+        const choose2Btn = document.getElementById('choose2');
+
+        // Função para escolher dois tópicos diferentes
+        function pickTopics() {
+            topic1 = data[Math.floor(Math.random() * data.length)];
+            topic2 = data[Math.floor(Math.random() * data.length)];
+            while (topic1 === topic2) {
+                topic2 = data[Math.floor(Math.random() * data.length)];
+            }
+            topic1Elem.textContent = topic1.name;
+            topic2Elem.textContent = topic2.name;
+        }
+
+        // Função para iniciar ou reiniciar o jogo
+        function startGame() {
+            currentScore = 0;
+            scoreElem.textContent = currentScore;
+            messageElem.textContent = '';
+            messageElem.classList.remove('show');
+            playAgainElem.style.display = 'none';
+            choose1Btn.disabled = false;
+            choose2Btn.disabled = false;
+            pickTopics();
+        }
+
+        // Função para escolha correta
+        function correctChoice() {
+            currentScore++;
+            scoreElem.textContent = currentScore;
+            messageElem.textContent = `Correto! ${topic1.name} tem ${topic1.searches} milhões de buscas, ${topic2.name} tem ${topic2.searches} milhões de buscas.`;
+            messageElem.classList.add('show');
+            setTimeout(() => {
+                messageElem.classList.remove('show');
+                pickTopics();
+                choose1Btn.disabled = false;
+                choose2Btn.disabled = false;
+            }, 2000);
+        }
+
+        // Função para escolha errada
+        function wrongChoice() {
+            messageElem.textContent = `Errado! ${topic1.name} tem ${topic1.searches} milhões de buscas, ${topic2.name} tem ${topic2.searches} milhões de buscas. Sua pontuação final foi: ${currentScore}`;
+            messageElem.classList.add('show');
+            if (currentScore > highScore) {
+                highScore = currentScore;
+                highScoreElem.textContent = highScore;
+            }
+            playAgainElem.style.display = 'block';
+        }
+
+        // Listeners para os botões de escolha
+        choose1Btn.addEventListener('click', () => {
+            choose1Btn.disabled = true;
+            choose2Btn.disabled = true;
+            if (topic1.searches > topic2.searches) {
+                correctChoice();
+            } else {
+                wrongChoice();
+            }
+        });
+
+        choose2Btn.addEventListener('click', () => {
+            choose1Btn.disabled = true;
+            choose2Btn.disabled = true;
+            if (topic2.searches > topic1.searches) {
+                correctChoice();
+            } else {
+                wrongChoice();
+            }
+        });
+
+        // Listeners para os botões de jogar novamente
+        document.getElementById('yes').addEventListener('click', startGame);
+        document.getElementById('no').addEventListener('click', () => {
+            messageElem.textContent = `Adeus! Sua maior pontuação foi: ${highScore}`;
+            messageElem.classList.add('show');
+            playAgainElem.style.display = 'none';
+        });
+
+        // Inicia o jogo ao carregar a página
+        startGame();
+    </script>
+</body>
+</html>

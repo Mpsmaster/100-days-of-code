@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Adivinhação Sarcástico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Changed to min-height for content overflow */
+            margin: 0;
+            padding: 0.5rem; /* Small padding for edge cases */
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 1.5rem; /* Reduced slightly for mobile */
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            box-sizing: border-box; /* Ensures padding doesn't exceed max-width */
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: clamp(1.2rem, 4vw, 1.8rem); /* Scales between 1.2rem and 1.8rem */
+            margin-bottom: 1rem; /* Reduced for smaller screens */
+        }
+
+        #game-area {
+            margin-top: 1rem;
+        }
+
+        input {
+            padding: 0.8rem; /* Increased for touch */
+            margin: 0.5rem auto;
+            font-size: 1rem;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            outline: none;
+            transition: border-color 0.3s;
+            width: 80%; /* Responsive width */
+            max-width: 200px; /* Limits on large screens */
+            display: block;
+        }
+
+        input:focus {
+            border-color: #e74c3c;
+        }
+
+        button {
+            padding: 0.8rem 1.5rem; /* Larger for touch targets */
+            margin: 0.5rem; /* Consistent spacing */
+            font-size: 1rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.3s;
+            min-width: 100px; /* Ensures touch-friendly size */
+        }
+
+        button:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        #quit-button, #no-button, #exit-button {
+            background-color: #e74c3c;
+        }
+
+        #quit-button:hover, #no-button:hover, #exit-button:hover {
+            background-color: #c0392b;
+        }
+
+        #continue-button {
+            background-color: #2ecc71;
+        }
+
+        #continue-button:hover {
+            background-color: #27ae60;
+        }
+
+        #feedback {
+            margin-top: 1rem;
+            font-weight: bold;
+            color: #e74c3c;
+            animation: fadeIn 0.5s ease-in-out;
+            font-size: clamp(0.9rem, 3vw, 1rem); /* Scales feedback text */
+            word-wrap: break-word; /* Prevents overflow */
+            max-width: 100%; /* Keeps text within container */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Media Queries for Fine-Tuning */
+        @media (max-width: 400px) {
+            .container {
+                padding: 1rem; /* Less padding on very small screens */
+            }
+            button {
+                padding: 0.6rem 1rem; /* Slightly smaller but still touch-friendly */
+                min-width: 90px;
+            }
+            input {
+                padding: 0.6rem;
+            }
+        }
+
+        @media (min-width: 800px) {
+            .container {
+                max-width: 700px; /* Slightly larger on big screens */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bem-vindo ao Jogo de Adivinhação de Números Mais Sarcástico do Mundo!</h1>
+        <div id="game-area">
+            <p id="message">Prepare-se para ser zoado e talvez—vencer.</p>
+            <input type="text" id="guess-input" placeholder="Digite seu chute (1-100)">
+            <button id="guess-button">Chutar</button>
+            <button id="quit-button">Desistir</button>
+        </div>
+        <div id="feedback"></div>
+    </div>
+
+    <script>
+        const SARCASTIC_COMMENTS = [
+            "Parabéns, você está quase lá... só falta atravessar o universo!",
+            "Você está mais perdido que barata em festa de galinha!",
+            "Seu chute foi tão bom que até o Pelé ficou com vergonha!",
+            "Isso foi tão alto que o Cristo Redentor tá pedindo socorro!",
+            "Seu palpite é tão ruim que dá dó até no número errado!",
+            "Você tá tão fora que nem o Waze te acha mais!",
+            "Se adivinhar fosse samba, você tava pisando no pé de todo mundo!",
+            "Sua mira é tão boa quanto flecha de índio bêbado!",
+            "Você tá mais confuso que macaco em dia de cachaça!",
+            "Seu chute foi útil igual guarda-chuva de papel na chuva!",
+            "Isso foi tão preciso quanto horóscopo de jornal!",
+            "Você tá mais perdido que turista sem dinheiro no Rio!",
+            "Seu palpite foi tão fraco que nem pra meme serve!",
+            "Você tá tão longe que o número já mudou de país!",
+            "Isso foi tão ruim que até a minha avó adivinhava melhor!",
+            "Você tá mais perdido que pinguim no sertão!",
+            "Seu chute foi tão torto que nem pro gol vazio ia!",
+            "Você tá tão fora que o mapa desistiu de você!",
+            "Isso foi tão triste que o número certo tá chorando!",
+            "Você tá mais enrolado que novela das nove!"
+        ];
+
+        let attempts, number, gameActive = false;
+
+        function startGame() {
+            gameActive = false;
+            const gameArea = document.getElementById('game-area');
+            gameArea.innerHTML = `
+                <p id="message">Escolha seu desafio, espertinho:</p>
+                <button id="easy-button">Fácil (10 tentativas)</button>
+                <button id="hard-button">Difícil (5 tentativas)</button>
+            `;
+            document.getElementById('feedback').textContent = "";
+            document.getElementById('easy-button').addEventListener('click', () => setDifficulty(10));
+            document.getElementById('hard-button').addEventListener('click', () => setDifficulty(5));
+        }
+
+        function setDifficulty(numAttempts) {
+            attempts = numAttempts;
+            number = Math.floor(Math.random() * 100) + 1;
+            gameActive = true;
+            const gameArea = document.getElementById('game-area');
+            gameArea.innerHTML = `
+                <p id="message">Você tem ${attempts} chances para não se envergonhar.</p>
+                <input type="text" id="guess-input" placeholder="Digite seu chute (1-100)">
+                <button id="guess-button">Chutar</button>
+                <button id="quit-button">Desistir</button>
+            `;
+            document.getElementById('feedback').textContent = "Pensei em um número entre 1 e 100. Vai fundo!";
+            document.getElementById('guess-button').addEventListener('click', handleGuess);
+            document.getElementById('quit-button').addEventListener('click', quitGame);
+            document.getElementById('guess-input').addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') handleGuess();
+            });
+        }
+
+        function handleGuess() {
+            if (!gameActive) return;
+            const guessInput = document.getElementById('guess-input');
+            const guess = parseInt(guessInput.value);
+            guessInput.value = '';
+
+            if (isNaN(guess)) {
+                document.getElementById('feedback').textContent = "Números, querido, não poesia. Tente um dígito de verdade da próxima vez.";
+                return;
+            }
+
+            if (guess === 0) {
+                quitGame();
+                return;
+            }
+
+            if (guess < 1 || guess > 100) {
+                document.getElementById('feedback').textContent = "Olá? Terra chamando o gênio—mantenha entre 1 e 100!";
+                return;
+            }
+
+            if (guess < number) {
+                attempts--;
+                document.getElementById('message').textContent = `Você tem ${attempts} chances para não se envergonhar.`;
+                document.getElementById('feedback').textContent = "Baixo demais, gênio!";
+            } else if (guess > number) {
+                attempts--;
+                document.getElementById('message').textContent = `Você tem ${attempts} chances para não se envergonhar.`;
+                document.getElementById('feedback').textContent = "Alto demais, astronauta!";
+            } else {
+                document.getElementById('message').textContent = `Você tem ${attempts} chances para não se envergonhar.`;
+                document.getElementById('feedback').textContent = "Ora, ora, ora—olhe quem finalmente acertou! Você venceu, campeão!";
+                gameActive = false;
+                showContinueButton();
+                return;
+            }
+
+            if (attempts > 0) {
+                const comment = SARCASTIC_COMMENTS[Math.floor(Math.random() * SARCASTIC_COMMENTS.length)];
+                document.getElementById('feedback').textContent += ` ${comment}`;
+            } else {
+                document.getElementById('message').textContent = `Você tem ${attempts} chances para não se envergonhar.`;
+                document.getElementById('feedback').textContent = `Fim de jogo, já não aguentava mais! O número era ${number}. Melhor sorte na próxima vida.`;
+                gameActive = false;
+                showContinueButton();
+            }
+        }
+
+        function quitGame() {
+            if (gameActive) {
+                document.getElementById('message').textContent = `Você tem ${attempts} chances para não se envergonhar.`;
+                document.getElementById('feedback').textContent = "Fugindo já? Patético. Tchau!";
+                gameActive = false;
+                showContinueButton();
+            }
+        }
+
+        function showContinueButton() {
+            const gameArea = document.getElementById('game-area');
+            gameArea.innerHTML = `
+                <button id="continue-button">Continuar</button>
+            `;
+            document.getElementById('continue-button').addEventListener('click', askPlayAgain);
+        }
+
+        function askPlayAgain() {
+            const gameArea = document.getElementById('game-area');
+            gameArea.innerHTML = `
+                <p id="message">Ousa enfrentar o sarcasmo de novo?</p>
+                <button id="yes-button">Sim</button>
+                <button id="no-button">Não</button>
+            `;
+            document.getElementById('feedback').textContent = "";
+            document.getElementById('yes-button').addEventListener('click', startGame);
+            document.getElementById('no-button').addEventListener('click', showExitButton);
+        }
+
+        function showExitButton() {
+            const gameArea = document.getElementById('game-area');
+            gameArea.innerHTML = `
+                <p id="message">Obrigado por jogar!</p>
+                <button id="exit-button">Pressione para sair</button>
+            `;
+            document.getElementById('feedback').textContent = "";
+            document.getElementById('exit-button').addEventListener('click', () => {
+                window.close(); // Attempt to close the window
+                // Fallback: Hide content if window.close() fails
+                document.querySelector('.container').style.display = 'none';
+                document.body.innerHTML += '<p style="color: white; font-size: 1.5rem;">Jogo encerrado. Feche a aba manualmente se necessário.</p>';
+            });
+        }
+
+        // Start the game initially
+        startGame();
+    </script>
+</body>
+</html>
