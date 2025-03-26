@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passeio com o destino</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&display=swap" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            overflow: hidden;
+        }
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            border: 1px solid #333;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .hidden {
+            display: none;
+        }
+        p {
+            font-size: 22px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        @media (max-width: 600px) {
+            canvas {
+                width: 90vw;
+                height: 90vw;
+            }
+            p {
+                font-size: 16px;
+            }
+            button {
+                font-size: 14px;
+            }
+        }
+        @media (min-width: 601px) {
+            canvas {
+                width: 600px;
+                height: 600px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="message1">
+            <p>Pense na sua cor preferida... Assim como na vida, o caminho mostrará nomes que se amontoam e não significam nada, mas o nome certo falará com você.</p>
+            <button id="button1">Aperte para prosseguir</button>
+        </div>
+        <div id="message2" class="hidden">
+            <p>Na vida, encontramos poucas pessoas que causam um grande impacto em nossas vidas. Estar preparado para esse encontro fará toda a diferença. Mantenha sua cor preferida em mente e observe o caminho da vida até mostrar a pessoa que cruzará seu caminho na sua cor. Se o caminha sair da tela, talvez você precise refletir sobre as decisões que tem tomado, ou , se preferir, feche e abra a página novamente para uma nova consulta.</p>
+            <button id="button2">Aperte para prosseguir</button>
+        </div>
+        <canvas id="tela" class="hidden"></canvas>
+        <button id="restart" class="hidden">Reiniciar</button>
+    </div>
+    <script>
+        // Lista de 100 nomes brasileiros comuns
+        const nomes = [
+            "Ana", "Maria", "João", "Pedro", "Lucas", "Gabriel", "Matheus", "Rafael", "Gustavo", "Felipe",
+            "Sophia", "Isabella", "Manuela", "Arthur", "Bernardo", "Heitor", "Davi", "Lorenzo", "Theo", "Enzo",
+            "Alice", "Julia", "Valentina", "Helena", "Laura", "Mariana", "Beatriz", "Clara", "Cecilia", "Eloá",
+            "Miguel", "Sofia", "Lara", "Eduardo", "Carlos", "José", "Antônio", "Francisco", "Paulo", "Luiz",
+            "Fernanda", "Camila", "Amanda", "Bruna", "Juliana", "Letícia", "Vitória", "Gabriela", "Isadora", "Yasmin",
+            "Leonardo", "Daniel", "Thiago", "Diego", "Bruno", "Vinícius", "André", "Ricardo", "Marcos", "Alexandre",
+            "Patrícia", "Renata", "Carolina", "Natália", "Luciana", "Aline", "Raquel", "Vanessa", "Priscila", "Cristina",
+            "Roberto", "Fernando", "Rodrigo", "Marcelo", "Sérgio", "Fábio", "Maurício", "Renan", "Guilherme", "Igor",
+            "Tatiana", "Elaine", "Sandra", "Márcia", "Débora", "Simone", "Viviane", "Cíntia", "Andréia", "Rosana",
+            "Júlio", "Mário", "Cláudio", "César", "Alberto", "Renato", "Augusto", "Otávio", "Adriano", "Wagner"
+        ];
+
+        // Configuração do canvas e contexto
+        const tela = document.getElementById('tela');
+        const contexto = tela.getContext('2d');
+
+        // Ajustar tamanho do canvas baseado no dispositivo
+        function ajustarTamanho() {
+            if (window.innerWidth <= 600) {
+                tela.width = window.innerWidth * 0.9;
+                tela.height = window.innerWidth * 0.9;
+            } else {
+                tela.width = 600;
+                tela.height = 600;
+            }
+            contexto.lineWidth = tela.width / 120;  // Escalar largura da linha
+            contexto.font = `${tela.width / 30}px Lobster`;  // Escalar tamanho da fonte
+        }
+        ajustarTamanho();
+        window.addEventListener('resize', ajustarTamanho);
+
+        // Variáveis iniciais
+        let posX, posY, tonalidade, angulo, passo;
+        const totalPassos = 1000;
+
+        // Função para resetar o canvas e variáveis
+        function reset() {
+            posX = tela.width / 2;
+            posY = tela.height / 2;
+            tonalidade = 0;
+            angulo = 0;
+            passo = 0;
+            contexto.clearRect(0, 0, tela.width, tela.height);
+        }
+        reset();  // Reset inicial
+
+        // Função para desenhar cada passo do passeio aleatório
+        function desenharPasso() {
+            // Definir cor da linha com gradiente de tonalidade
+            tonalidade = (tonalidade + 5) % 360;
+            contexto.strokeStyle = `hsl(${tonalidade}, 100%, 50%)`;
+
+            // Escolher direção (90 graus à esquerda ou direita)
+            const direcao = Math.random() < 0.5 ? -1 : 1; // -1 para esquerda, 1 para direita
+            angulo += direcao * Math.PI / 2;
+
+            // Calcular nova posição
+            const distancia = tela.width / 20;  // Escalar distância baseado no canvas
+            const novoX = posX + distancia * Math.cos(angulo);
+            const novoY = posY + distancia * Math.sin(angulo);
+
+            // Desenhar linha
+            contexto.beginPath();
+            contexto.moveTo(posX, posY);
+            contexto.lineTo(novoX, novoY);
+            contexto.stroke();
+
+            // Atualizar posição
+            posX = novoX;
+            posY = novoY;
+
+            // Escrever um nome com 10% de probabilidade
+            if (Math.random() < 0.1) {
+                const nome = nomes[Math.floor(Math.random() * nomes.length)];
+                contexto.fillStyle = 'black';
+                contexto.fillText(nome, posX, posY);
+            }
+
+            // Continuar até atingir o total de passos
+            passo++;
+            if (passo < totalPassos) {
+                setTimeout(desenharPasso, 50); // Atraso de 50ms para animação suave
+            } else {
+                showElement('restart');
+            }
+        }
+
+        // Funções para mostrar/esconder elementos
+        function showElement(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+        function hideElement(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // Listeners de eventos para os botões
+        document.getElementById('button1').addEventListener('click', () => {
+            hideElement('message1');
+            showElement('message2');
+        });
+
+        document.getElementById('button2').addEventListener('click', () => {
+            hideElement('message2');
+            showElement('tela');
+            reset();  // Resetar canvas e variáveis
+            desenharPasso();  // Iniciar o passeio aleatório
+        });
+
+        document.getElementById('restart').addEventListener('click', () => {
+            hideElement('tela');
+            hideElement('restart');
+            showElement('message1');
+            reset();  // Limpar canvas e resetar variáveis
+        });
+    </script>
+</body>
+</html>

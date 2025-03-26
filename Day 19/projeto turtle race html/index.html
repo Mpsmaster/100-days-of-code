@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corrida das Tartarugas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+        }
+        #game {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        p {
+            text-align: center;
+            color: #34495e;
+            line-height: 1.5;
+        }
+        #bet-section, #result-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        select, button {
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #bdc3c7;
+            cursor: pointer;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #race-track {
+            position: relative;
+            width: 500px;
+            height: 300px;
+            background-color: #ecf0f1;
+            margin: 20px auto;
+            border: 2px solid #95a5a6;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .turtle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            transition: left 0.1s linear;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .turtle-red { background-color: red; }
+        .turtle-orange { background-color: orange; }
+        .turtle-yellow { background-color: yellow; }
+        .turtle-green { background-color: green; }
+        .turtle-blue { background-color: blue; }
+        .turtle-indigo { background-color: indigo; }
+        .turtle-violet { background-color: violet; }
+        .finish-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 480px;
+            width: 2px;
+            background-color: #e74c3c;
+            border-left: 2px dashed #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <h1>Corrida das Tartarugas</h1>
+        <p>Bem-vindo à corrida das tartarugas! Assim como na vida, às vezes pequenos passos podem levar a grandes progressos. Escolha sua tartaruga e veja quem vence!</p>
+        <div id="bet-section">
+            <label for="bet">Qual tartaruga você acha que vai chegar primeiro à linha de chegada? Escolha uma cor:</label>
+            <select id="bet">
+                <option value="red">Vermelho</option>
+                <option value="orange">Laranja</option>
+                <option value="yellow">Amarelo</option>
+                <option value="green">Verde</option>
+                <option value="blue">Azul</option>
+                <option value="indigo">Índigo</option>
+                <option value="violet">Violeta</option>
+            </select>
+            <button id="start-race">Iniciar Corrida</button>
+        </div>
+        <div id="race-track">
+            <div class="turtle turtle-red" style="top: 20px; left: 0px;" data-color="red"></div>
+            <div class="turtle turtle-orange" style="top: 60px; left: 0px;" data-color="orange"></div>
+            <div class="turtle turtle-yellow" style="top: 100px; left: 0px;" data-color="yellow"></div>
+            <div class="turtle turtle-green" style="top: 140px; left: 0px;" data-color="green"></div>
+            <div class="turtle turtle-blue" style="top: 180px; left: 0px;" data-color="blue"></div>
+            <div class="turtle turtle-indigo" style="top: 220px; left: 0px;" data-color="indigo"></div>
+            <div class="turtle turtle-violet" style="top: 260px; left: 0px;" data-color="violet"></div>
+            <div class="finish-line"></div>
+        </div>
+        <div id="result-section" style="display: none;">
+            <p id="result-message"></p>
+            <button id="play-again">Jogar Novamente</button>
+        </div>
+    </div>
+    <script>
+        const betSelect = document.getElementById('bet');
+        const startButton = document.getElementById('start-race');
+        const turtles = document.querySelectorAll('.turtle');
+        const resultSection = document.getElementById('result-section');
+        const resultMessage = document.getElementById('result-message');
+        const playAgainButton = document.getElementById('play-again');
+
+        startButton.addEventListener('click', () => {
+            const userBet = betSelect.value;
+            if (userBet) {
+                document.getElementById('bet-section').style.display = 'none';
+                startRace(userBet);
+            }
+        });
+
+        function startRace(userBet) {
+            let raceInterval = setInterval(() => {
+                let winner = null;
+                turtles.forEach(turtle => {
+                    let currentLeft = parseFloat(turtle.style.left);
+                    let distance = Math.floor(Math.random() * 11);
+                    turtle.style.left = (currentLeft + distance) + 'px';
+                    if (currentLeft + distance >= 480) {
+                        winner = turtle.dataset.color;
+                    }
+                });
+                if (winner) {
+                    clearInterval(raceInterval);
+                    showResult(winner, userBet);
+                }
+            }, 100);
+        }
+
+        function showResult(winner, userBet) {
+            const colorNames = {
+                "red": "vermelho",
+                "orange": "laranja",
+                "yellow": "amarelo",
+                "green": "verde",
+                "blue": "azul",
+                "indigo": "índigo",
+                "violet": "violeta"
+            };
+            const winColorPt = colorNames[winner];
+            let message = winner === userBet 
+                ? `Você venceu! A tartaruga ${winColorPt} ganhou.` 
+                : `Você perdeu! A tartaruga ${winColorPt} ganhou.`;
+            message += " Lembre-se, o importante é continuar avançando, mesmo que seja devagar. Nunca desista de tentar novamente. Quer jogar mais uma vez?";
+            resultMessage.textContent = message;
+            resultSection.style.display = 'block';
+        }
+
+        playAgainButton.addEventListener('click', () => {
+            resultSection.style.display = 'none';
+            document.getElementById('bet-section').style.display = 'block';
+            turtles.forEach(turtle => {
+                turtle.style.left = '0px';
+            });
+        });
+    </script>
+</body>
+</html>
