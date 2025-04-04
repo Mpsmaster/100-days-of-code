@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fuga do Problema</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #game-container {
+            position: relative;
+            width: 400px;
+            height: 600px;
+            background-color: #333;
+            border: 2px solid #555;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        #chicken {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #ffeb3b;
+            border-radius: 50%;
+            border: 2px solid #f57f17;
+            transition: all 0.1s ease;
+        }
+        .name {
+            position: absolute;
+            height: 50px;
+            line-height: 50px;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        #ui {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 20px;
+            text-shadow: 1px 1px 2px #000;
+        }
+        #game-over {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            font-size: 24px;
+        }
+        #game-over button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #game-over button:hover {
+            background-color: #45a049;
+        }
+        #controls {
+            display: none;
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        #controls button {
+            font-size: 24px;
+            margin: 5px;
+            padding: 10px;
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #controls button:hover {
+            background-color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container"></div>
+    <div id="ui">
+        <div id="level">Nível: 1</div>
+    </div>
+    <div id="game-over">
+        Fim de Jogo<br>
+        <button id="play-again">Jogar Novamente</button>
+    </div>
+    <div id="controls">
+        <button id="up">↑</button>
+        <button id="left">←</button>
+        <button id="right">→</button>
+        <button id="down">↓</button>
+    </div>
+
+    <script>
+        // List of 100 common Brazilian Portuguese names
+        const commonNames = [
+            'Ana', 'Bruno', 'Carlos', 'Daniela', 'Eduardo', 'Fernanda', 'Gabriel', 'Helena', 'Igor', 'Julia',
+            'Lucas', 'Mariana', 'Pedro', 'Sofia', 'Thiago', 'Valentina', 'João', 'Larissa', 'Matheus', 'Natália',
+            'Amanda', 'Bianca', 'Cesar', 'Diego', 'Evelyn', 'Felipe', 'Gustavo', 'Isabela', 'Jorge', 'Katia',
+            'Leonardo', 'Monica', 'Natan', 'Olivia', 'Paulo', 'Quintino', 'Rafael', 'Sabrina', 'Tiago', 'Ursula',
+            'Victor', 'Wagner', 'Xavier', 'Yasmin', 'Zeca', 'Alice', 'Bernardo', 'Clara', 'Davi', 'Elisa',
+            'Fabio', 'Giovanna', 'Henrique', 'Ines', 'Jonas', 'Karen', 'Luis', 'Marina', 'Nelson', 'Olga',
+            'Pablo', 'Quezia', 'Ricardo', 'Silvia', 'Tomas', 'Ulisses', 'Vera', 'Wesley', 'Xuxa', 'Yuri', 'Zilda',
+            'Adriana', 'Benicio', 'Cecilia', 'Dante', 'Esther', 'Filipe', 'Gisele', 'Hugo', 'Iris', 'Joaquim',
+            'Karla', 'Leandro', 'Marta', 'Nicolas', 'Olivia', 'Pedro', 'Quirino', 'Rita', 'Sergio', 'Tania',
+            'Umberto', 'Vitoria', 'Walter', 'Ximenes', 'Yara', 'Zuleica'
+        ];
+
+        // Game settings
+        const lanes = 5;
+        const namesPerLane = 3;
+        const laneHeight = 100;
+        const gameWidth = 400;
+        const gameHeight = 600;
+        const chickenSize = 20;
+        let level = 1;
+        let speed = 100; // pixels per second
+        let chickenX = gameWidth / 2 - chickenSize / 2;
+        let chickenY = gameHeight - chickenSize - 10;
+        let names = [];
+        let isRunning = true;
+        let lastTime = 0;
+
+        function init() {
+            const gameContainer = document.getElementById('game-container');
+
+            // Create the chicken (ball)
+            const chicken = document.createElement('div');
+            chicken.id = 'chicken';
+            chicken.style.left = chickenX + 'px';
+            chicken.style.top = chickenY + 'px';
+            gameContainer.appendChild(chicken);
+
+            // Create the names
+            for (let lane = 0; lane < lanes; lane++) {
+                const direction = lane % 2 === 0 ? 'right' : 'left';
+                const color = `hsl(${lane * 60}, 100%, 50%)`; // Different colors per lane
+                for (let i = 0; i < namesPerLane; i++) {
+                    const nameText = commonNames[Math.floor(Math.random() * commonNames.length)];
+                    const nameElement = document.createElement('div');
+                    nameElement.className = 'name';
+                    nameElement.textContent = nameText;
+                    nameElement.style.top = (lane * laneHeight + 25) + 'px';
+                    nameElement.style.color = color;
+                    gameContainer.appendChild(nameElement);
+                    const width = nameElement.offsetWidth;
+                    let x = direction === 'right' ? -width - i * (gameWidth / namesPerLane) : gameWidth + i * (gameWidth / namesPerLane);
+                    nameElement.style.left = x + 'px';
+                    names.push({ element: nameElement, x: x, width: width, lane: lane, direction: direction });
+                }
+            }
+
+            // Event listeners
+            document.addEventListener('keydown', handleKeyDown);
+            document.getElementById('play-again').addEventListener('click', playAgain);
+
+            // Controls for mobile devices
+            if ('ontouchstart' in window) {
+                document.getElementById('controls').style.display = 'block';
+                document.getElementById('up').addEventListener('click', () => moveChicken('up'));
+                document.getElementById('down').addEventListener('click', () => moveChicken('down'));
+                document.getElementById('left').addEventListener('click', () => moveChicken('left'));
+                document.getElementById('right').addEventListener('click', () => moveChicken('right'));
+            }
+
+            // Start the game loop
+            requestAnimationFrame(gameLoop);
+        }
+
+        function gameLoop(timestamp) {
+            if (!isRunning) return;
+            if (!lastTime) lastTime = timestamp;
+            const deltaTime = (timestamp - lastTime) / 1000;
+            lastTime = timestamp;
+
+            // Update name positions
+            names.forEach(name => {
+                name.x += (name.direction === 'right' ? speed : -speed) * deltaTime;
+                if (name.direction === 'right' && name.x > gameWidth) {
+                    name.x = -name.width;
+                } else if (name.direction === 'left' && name.x < -name.width) {
+                    name.x = gameWidth;
+                }
+                name.element.style.left = name.x + 'px';
+            });
+
+            // Check for collisions
+            names.forEach(name => {
+                const nameY = parseFloat(name.element.style.top);
+                if (checkCollision(chickenX, chickenY, chickenSize, chickenSize, name.x, nameY, name.width, 50)) {
+                    gameOver();
+                }
+            });
+
+            // Check if the chicken reached the top
+            if (chickenY <= 0) {
+                levelUp();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2) {
+            return x1 < x2 + w2 && x1 + w1 > x2 && y1 < y2 + h2 && y1 + h1 > y2;
+        }
+
+        function handleKeyDown(e) {
+            if (!isRunning) return;
+            moveChicken(e.key);
+        }
+
+        function moveChicken(direction) {
+            const step = 20;
+            switch (direction) {
+                case 'ArrowUp': case 'up':
+                    chickenY = Math.max(0, chickenY - step);
+                    break;
+                case 'ArrowDown': case 'down':
+                    chickenY = Math.min(gameHeight - chickenSize, chickenY + step);
+                    break;
+                case 'ArrowLeft': case 'left':
+                    chickenX = Math.max(0, chickenX - step);
+                    break;
+                case 'ArrowRight': case 'right':
+                    chickenX = Math.min(gameWidth - chickenSize, chickenX + step);
+                    break;
+            }
+            const chicken = document.getElementById('chicken');
+            chicken.style.left = chickenX + 'px';
+            chicken.style.top = chickenY + 'px';
+        }
+
+        function levelUp() {
+            level++;
+            speed += 20;
+            chickenY = gameHeight - chickenSize - 10;
+            document.getElementById('chicken').style.top = chickenY + 'px';
+            document.getElementById('level').textContent = 'Nível: ' + level;
+        }
+
+        function gameOver() {
+            isRunning = false;
+            document.getElementById('game-over').style.display = 'block';
+        }
+
+        function playAgain() {
+            isRunning = true;
+            level = 1;
+            speed = 100;
+            chickenX = gameWidth / 2 - chickenSize / 2;
+            chickenY = gameHeight - chickenSize - 10;
+            const chicken = document.getElementById('chicken');
+            chicken.style.left = chickenX + 'px';
+            chicken.style.top = chickenY + 'px';
+            document.getElementById('game-over').style.display = 'none';
+            document.getElementById('level').textContent = 'Nível: ' + level;
+            names.forEach(name => {
+                name.x = name.direction === 'right' ? -name.width - Math.random() * gameWidth : gameWidth + Math.random() * gameWidth;
+                name.element.style.left = name.x + 'px';
+            });
+            requestAnimationFrame(gameLoop);
+        }
+
+        init();
+    </script>
+</body>
+</html>
