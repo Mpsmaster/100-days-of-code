@@ -90,8 +90,8 @@ def random_word():
     
     # Ensure there are words left to display
     if not data_dict:
-        canvas.itemconfig(word_label, text="No more words!")
-        canvas.itemconfig(translation_label, text="")
+        canvas.itemconfig(language_label, text="No more words!")
+        canvas.itemconfig(word_label, text="")
         return
     
     # Select the first word from data_dict (maintains unknown word priority)
@@ -100,8 +100,8 @@ def random_word():
     
     # Show front card and French word
     canvas.itemconfig(card_image, image=canvas_img_front)
-    canvas.itemconfig(word_label, text="French")
-    canvas.itemconfig(translation_label, text=current_word["French"])
+    canvas.itemconfig(language_label, text="French")
+    canvas.itemconfig(word_label, text=current_word["French"])
     
     # Schedule flip to back after 3 seconds
     flip_timer = window.after(3000, flip_card)
@@ -111,14 +111,14 @@ def flip_card():
     if is_front:
         # Show back of card and English word
         canvas.itemconfig(card_image, image=canvas_img_back)
-        canvas.itemconfig(word_label, text="English")
-        canvas.itemconfig(translation_label, text=current_word["English"])
+        canvas.itemconfig(language_label, text="English")
+        canvas.itemconfig(word_label, text=current_word["English"])
         is_front = False
     else:
         # Show front of card and French word
         canvas.itemconfig(card_image, image=canvas_img_front)
-        canvas.itemconfig(word_label, text="French")
-        canvas.itemconfig(translation_label, text=current_word["French"])
+        canvas.itemconfig(language_label, text="French")
+        canvas.itemconfig(word_label, text=current_word["French"])
         is_front = True
     
     # Schedule next flip after 3 seconds
@@ -157,8 +157,8 @@ canvas = Canvas(width=800, height=526, bg=BACKGROUND_COLOR, highlightthickness=0
 canvas_img_front = PhotoImage(file="card_front.png")
 canvas_img_back = PhotoImage(file="card_back.png")
 card_image = canvas.create_image(400, 263, image=canvas_img_front)
-word_label = canvas.create_text(400, 150, text="Title", fill="black", font=("Arial", 40, "italic"))
-translation_label = canvas.create_text(400, 263, text="Word", fill="black", font=("Arial", 60, "bold"))
+language_label = canvas.create_text(400, 150, text="Title", fill="black", font=("Arial", 40, "italic"))
+word_label = canvas.create_text(400, 263, text="Word", fill="black", font=("Arial", 60, "bold"))
 canvas.grid(column=0, row=0, columnspan=2)
 
 # Buttons
